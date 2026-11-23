@@ -7,7 +7,7 @@ Zugangscode: personal
 
 ## Aufbau
 
-- `index.html` Startseite mit Zugangscode, Kursverlauf und allen Tagen
+- `index.html` Startseite mit Zugangscode, Kursverlauf, allen Tagen und aufklappbarer Navigationsleiste links (am Handy über das Menü)
 - `tage/tagNN/` alle Unterlagen eines Tages
   - Vormittag und Nachmittag je mit Präsentation (HTML und PDF), Skript und Quiz (Tag 10 Ganztag)
   - freiwillig mit Aufgabenheft, Übungsquiz 1 und 2, Aufgabenbogen 1 und 2 mit Lösungen

@@ -77,12 +77,32 @@
       check(id, titel) + "</div>";
   }
   function kopf() {
-    return '<header class="kopf"><div class="wrap"><a href="#/" aria-label="Zur Übersicht"><img src="assets/img/waybuild_akademie.png" alt="Waybuild Akademie"></a>' +
+    return '<header class="kopf"><div class="wrap"><button class="menue" id="menue" aria-label="Navigation ein- oder ausblenden" aria-controls="seitennav"><span></span><span></span><span></span></button><a href="#/" aria-label="Zur Übersicht"><img src="assets/img/waybuild_akademie.png" alt="Waybuild Akademie"></a>' +
       '<div class="kurs"><b>' + esc(K.kurs) + '</b><span>' + esc(K.gruppe) + ", " + esc(K.traeger) + ", " + esc(K.zeitraum) + '</span></div>' +
       '<div class="platz"></div><button class="btn btn-leise" id="abmelden">Abmelden</button></div></header>';
   }
   function fuss() {
     return '<footer class="fuss"><div class="wrap"><span>' + esc(K.copy) + '</span><a href="https://www.waybuild.de" target="_blank" rel="noopener">www.waybuild.de</a></div></footer>';
+  }
+
+
+  function seitennav(aktiv) {
+    var h = '<nav class="seitennav" id="seitennav" aria-label="Kursnavigation"><a class="nav-start' + (aktiv ? "" : " an") + '" href="#/">Übersicht</a><ol>';
+    K.days.forEach(function (d) {
+      var p = progress(d), auf = d.nr === aktiv, fertig = p.n === p.total;
+      h += '<li class="' + (auf ? "an" : "") + '"><details' + (auf ? " open" : "") + '><summary><a href="#/tag/' + d.nr + '"><span class="nnr' + (fertig ? " fertig" : "") + '">' + d.nr +
+        '</span><span class="ntext"><b>' + esc(d.kurz) + '</b><small>' + esc(d.weekday.slice(0, 2)) + " " + shortDate(d.date) + "</small></span></a></summary><div class=\"unterpunkte\">";
+      var ziele = [["video", "Video"]];
+      d.sessions.forEach(function (s) { ziele.push(["s" + s.nr, d.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag")]); });
+      ziele.push(["frei", "Freiwillig üben"]);
+      ziele.forEach(function (z) { h += '<a href="#/tag/' + d.nr + '" data-ziel="' + z[0] + '">' + z[1] + "</a>"; });
+      h += "</div></details></li>";
+    });
+    h += '</ol><div class="nav-kurs"><a href="' + K.kursfiles.trainer + '" target="_blank" rel="noopener">Quiz-Trainer</a><a href="' + K.kursfiles.gesamt + '" target="_blank" rel="noopener">Gesamtskript</a></div></nav>';
+    return h;
+  }
+  function rahmen(aktiv, inhalt) {
+    return kopf() + '<div class="layout">' + seitennav(aktiv) + '<div class="hauptbereich"><main class="wrap">' + inhalt + "</main>" + fuss() + '</div></div><div class="schleier" id="schleier"></div>';
   }
 
   /* ---------- Anmeldung ---------- */
@@ -122,7 +142,7 @@
     var t0 = new Date(); t0.setHours(0, 0, 0, 0);
     var before = t0 < parseDate(K.days[0].date);
     var lead = before ? "Bald geht es los" : (today ? "Heute" : "Zuletzt");
-    var h = kopf() + '<main class="wrap">';
+    var h = '';
     h += '<section class="heute"><div class="gross">Tag ' + cur.nr + '<small>' + lead + ", " + esc(cur.weekday) + " " + esc(cur.date) + '</small></div>' +
       '<div><h2>' + esc(cur.title) + '</h2>' + cur.sessions.map(function (s) { return '<p>' + (cur.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag")) + ", " + esc(s.title) + '</p>'; }).join("") + '</div>' +
       '<a class="btn" href="#/tag/' + cur.nr + '">Tag ' + cur.nr + ' öffnen</a></section>';
@@ -150,15 +170,14 @@
     h += '<h2 class="abschnitt-titel">Für den ganzen Kurs</h2><div class="kursmaterial">' +
       '<div class="spalte">' + eintrag("kurs-trainer", "trainer", K.kursfiles.trainer, "Quiz-Trainer und Probeklausur", "Alle Fragen aller Tage üben, Probeklausur mit 30 Fragen") + "</div>" +
       '<div class="spalte">' + eintrag("kurs-gesamt", "skript", K.kursfiles.gesamt, "Gesamtskript aller Tage", "Alle Skripte in einer PDF mit Glossar") + "</div></div>";
-    h += "</main>" + fuss();
-    app.innerHTML = h;
+    app.innerHTML = rahmen(0, h);
   }
 
   /* ---------- Tagesansicht ---------- */
   function sessionBlock(d, s) {
     var lab = d.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag");
     var b = 'd' + d.nr + '-s' + s.nr;
-    var h = '<section class="spalte"><header><h2>' + lab + '</h2><span>' + esc(s.title) + "</span></header>";
+    var h = '<section class="spalte" id="ziel-s' + s.nr + '"><header><h2>' + lab + '</h2><span>' + esc(s.title) + "</span></header>";
     h += '<div class="teil"><p class="unter">' + esc(s.subtitle) + "</p>";
     h += eintrag(d.nr + "-s" + s.nr + "-pres", "pres", s.files.pres, "Präsentation",
       s.folien + ' Folien <a href="' + s.files.pres_pdf + '" target="_blank" rel="noopener">als PDF</a>');
@@ -173,8 +192,7 @@
     document.title = "Tag " + d.nr + " · " + d.title;
     var prev = K.days.filter(function (x) { return x.nr === nr - 1; })[0];
     var next = K.days.filter(function (x) { return x.nr === nr + 1; })[0];
-    var h = kopf() + '<main class="wrap">';
-    h += '<nav class="tagnav"><a class="btn btn-leise" href="#/">Übersicht</a><span class="platz"></span>' +
+    var h = '<nav class="tagnav"><a class="btn btn-leise" href="#/">Übersicht</a><span class="platz"></span>' +
       (prev ? '<a class="btn btn-leise" href="#/tag/' + prev.nr + '">Tag ' + prev.nr + "</a>" : "") +
       (next ? '<a class="btn btn-leise" href="#/tag/' + next.nr + '">Tag ' + next.nr + "</a>" : "") + "</nav>";
     h += '<div class="tagkopf"><div class="gross">Tag ' + d.nr + '</div><div><h1>' + esc(d.title) + "</h1><p>" + esc(d.weekday) + ", " + esc(d.date) +
@@ -186,7 +204,7 @@
     }
 
     var vids = videoList(d.nr);
-    h += '<section class="spalte video-block"><header><h2>Video</h2><span>' + (vids.length ? "Zum Tag " + d.nr : "kommt noch") + "</span>" +
+    h += '<section class="spalte video-block" id="ziel-video"><header><h2>Video</h2><span>' + (vids.length ? "Zum Tag " + d.nr : "kommt noch") + "</span>" +
       (vids.length ? check(d.nr + "-video", "Video") : "") + '</header><div class="video">';
     if (vids.length) { h += '<div class="mehr">' + vids.map(embed).join("") + "</div>"; }
     else { h += '<div class="folgt"><div><b>Das Video zu Tag ' + d.nr + ' folgt</b>Es erscheint hier, sobald es hochgeladen ist.</div></div>'; }
@@ -195,7 +213,7 @@
     h += '<div class="zweispaltig' + (d.sessions.length === 1 ? " eins" : "") + '">' + d.sessions.map(function (s) { return sessionBlock(d, s); }).join("") + "</div>";
 
     var u = d.ueb, m = d.ueb_meta;
-    h += '<section class="spalte frei"><header><h2>Freiwillig üben</h2><span class="marke">freiwillig</span><span>zur Vertiefung und zum Üben zu Hause</span></header><div class="freigitter">';
+    h += '<section class="spalte frei" id="ziel-frei"><header><h2>Freiwillig üben</h2><span class="marke">freiwillig</span><span>zur Vertiefung und zum Üben zu Hause</span></header><div class="freigitter">';
     h += '<div>' + eintrag(d.nr + "-heft", "heft", d.heft.file, d.klausur ? "Aufgabenheft Klausurtraining" : "Aufgabenheft des Tages",
       d.heft.aufgaben + " Aufgaben und eine Fallstudie, etwa " + d.heft.minuten + " Minuten");
     h += eintrag(d.nr + "-ueq1", "quiz", u.ueq1, "Übungsquiz 1, Grundlagen und Begriffe", "60 neue Fragen online");
@@ -208,8 +226,7 @@
 
     h += '<nav class="tagnav unten">' + (prev ? '<a class="btn btn-leise" href="#/tag/' + prev.nr + '">Zurück zu Tag ' + prev.nr + "</a>" : "") +
       '<span class="platz"></span>' + (next ? '<a class="btn btn-blau" href="#/tag/' + next.nr + '">Weiter zu Tag ' + next.nr + "</a>" : '<a class="btn btn-blau" href="#/">Zur Übersicht</a>') + "</nav>";
-    h += "</main>" + fuss();
-    app.innerHTML = h;
+    app.innerHTML = rahmen(d.nr, h);
     window.scrollTo(0, 0);
   }
 
@@ -233,8 +250,25 @@
       var row = a.closest(".eintrag"), box = row && row.querySelector("input[data-id]");
       if (box && !box.checked) { box.checked = true; done[box.dataset.id] = 1; saveDone(); row.classList.add("ok"); }
     }
+    var mb = e.target.closest("#menue");
+    if (mb) {
+      if (window.matchMedia("(max-width:980px)").matches) document.body.classList.toggle("nav-offen");
+      else { document.body.classList.toggle("nav-zu"); set("pe26_navzu", document.body.classList.contains("nav-zu") ? "1" : "0"); }
+    }
+    if (e.target.id === "schleier") document.body.classList.remove("nav-offen");
+    var zl = e.target.closest("a[data-ziel]");
+    if (zl) {
+      e.preventDefault();
+      var ziel = zl.dataset.ziel, href = zl.getAttribute("href");
+      document.body.classList.remove("nav-offen");
+      var go = function () { var el = document.getElementById("ziel-" + ziel); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+      if (location.hash !== href) { location.hash = href; setTimeout(go, 60); } else go();
+    }
+    var nl = e.target.closest(".seitennav a[href^='#/']:not([data-ziel])");
+    if (nl) document.body.classList.remove("nav-offen");
     if (e.target.id === "abmelden") { del("pe26_ok"); location.hash = "#/"; renderLogin(); }
   });
+  if (get("pe26_navzu") === "1") document.body.classList.add("nav-zu");
   window.addEventListener("hashchange", route);
   route();
 })();
