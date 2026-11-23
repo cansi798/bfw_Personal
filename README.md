@@ -12,16 +12,16 @@ Zugangscode: personal
   - Vormittag und Nachmittag je mit Präsentation (HTML und PDF), Skript und Quiz (Tag 10 Ganztag)
   - freiwillig mit Aufgabenheft, Übungsquiz 1 und 2, Aufgabenbogen 1 und 2 mit Lösungen
 - `kurs/` Quiz-Trainer mit Probeklausur und Gesamtskript
-- `videos.js` Videos je Tag
+- `videos.js` optionale Video-Links (YouTube, Vimeo)
 - `videos/` Ablage für eigene Videodateien
 
 Unterlagen nur für Dozierende (Dozentenübersicht, Lösungen zum Aufgabenheft, Quiz-Lösungen) liegen nicht in diesem Repository.
 
-## Video zu einem Tag hinzufügen
+## Videos hinzufügen
 
-Videodatei in den Ordner `videos` legen und nach dem Tag benennen, zum Beispiel `tag03.mp4` für Tag 3 (zweites Video `tag03_2.mp4`). Die Seite findet die Datei automatisch, nach etwa einer Minute ist sie sichtbar.
+Pro Tag gibt es ein Video zum Vormittag und eins zum Nachmittag. Die Datei in den Ordner `videos` legen und so benennen: `tag03_vormittag.mp4`, `tag03_nachmittag.mp4`, an Tag 10 `tag10_ganztag.mp4`. Die Seite zeigt das Video automatisch bei der passenden Session an, nach etwa einer Minute ist es sichtbar. Details in `videos/README.md`.
 
-Im Browser auf github.com dürfen Dateien höchstens 25 MB groß sein, mit GitHub Desktop oder git höchstens 100 MB. Größere Videos vorher verkleinern (zum Beispiel HandBrake, „Fast 720p30“) oder als YouTube-Link in `videos.js` eintragen.
+Im Browser auf github.com dürfen Dateien höchstens 25 MB groß sein, mit GitHub Desktop oder git höchstens 100 MB. Größere Videos vorher verkleinern oder als YouTube-Link in `videos.js` eintragen.
 
 ## Hinweis zum Zugangscode
 

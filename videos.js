@@ -1,24 +1,20 @@
 /*
-  Videos je Unterrichtstag.
-  Am einfachsten die Videodatei in den Ordner videos legen und tag01.mp4, tag02.mp4 usw. nennen,
-  dann erscheint sie automatisch. Diese Datei hier ist nur für Links (YouTube, Vimeo).
-  Einfach den Link zwischen die Anführungszeichen setzen und speichern (committen).
-  Erlaubt sind
-    YouTube-Links   z. B. "https://youtu.be/abc123" oder "https://www.youtube.com/watch?v=abc123"
-    Vimeo-Links     z. B. "https://vimeo.com/123456"
-    eigene Dateien  z. B. "videos/tag01.mp4" (Datei in den Ordner videos legen, höchstens 100 MB)
-  Mehrere Videos an einem Tag als Liste ["link1", "link2"].
-  Leer lassen, solange es noch kein Video gibt.
+  Videos am einfachsten als Datei in den Ordner videos legen
+  (tag03_vormittag.mp4, tag03_nachmittag.mp4, Tag 10 tag10_ganztag.mp4).
+  Diese Datei ist nur für Links, zum Beispiel YouTube (nicht gelistet) oder Vimeo.
+  Beispiel
+    3: { vormittag: "https://youtu.be/abc123", nachmittag: "https://youtu.be/def456" },
+  Tag 10 nutzt vormittag für den Ganztag.
 */
 window.VIDEOS = {
-  1: "",
-  2: "",
-  3: "",
-  4: "",
-  5: "",
-  6: "",
-  7: "",
-  8: "",
-  9: "",
-  10: ""
+  1: { vormittag: "", nachmittag: "" },
+  2: { vormittag: "", nachmittag: "" },
+  3: { vormittag: "", nachmittag: "" },
+  4: { vormittag: "", nachmittag: "" },
+  5: { vormittag: "", nachmittag: "" },
+  6: { vormittag: "", nachmittag: "" },
+  7: { vormittag: "", nachmittag: "" },
+  8: { vormittag: "", nachmittag: "" },
+  9: { vormittag: "", nachmittag: "" },
+  10: { vormittag: "" }
 };

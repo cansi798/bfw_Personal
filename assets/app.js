@@ -31,8 +31,7 @@
   /* ---------- Fortschritt ---------- */
   function dayItems(d) {
     var ids = [];
-    if (videoList(d.nr).length) ids.push(d.nr + "-video");
-    d.sessions.forEach(function (s) { ids.push(d.nr + "-s" + s.nr + "-pres", d.nr + "-s" + s.nr + "-skript", d.nr + "-s" + s.nr + "-quiz"); });
+    d.sessions.forEach(function (s) { if (videoList(d.nr, s.nr).length) ids.push(d.nr + "-s" + s.nr + "-video"); ids.push(d.nr + "-s" + s.nr + "-pres", d.nr + "-s" + s.nr + "-skript", d.nr + "-s" + s.nr + "-quiz"); });
     ids.push(d.nr + "-heft", d.nr + "-ueq1", d.nr + "-ueq2", d.nr + "-ab1", d.nr + "-ab2");
     return ids;
   }
@@ -51,14 +50,20 @@
 
   /* ---------- Videos ---------- */
   var FOUND = {};
-  function videoList(nr) {
-    var v = V[nr];
-    if (!v) v = [];
+  function asList(v) {
+    if (!v) return [];
     if (!Array.isArray(v)) v = [v];
-    v = v.filter(function (x) { return x && String(x).trim(); });
-    return v.concat(FOUND[nr] || []);
+    return v.filter(function (x) { return x && String(x).trim(); });
   }
-  /* Videodateien im Ordner videos automatisch finden: tag03.mp4, tag03_2.mp4 und so weiter */
+  /* Videos je Session: aus videos.js (Links) und aus dem Ordner videos (Dateien) */
+  function videoList(nr, snr) {
+    var v = V[nr], links = [];
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      links = asList(v[snr] || v[snr === 1 ? "vormittag" : "nachmittag"] || (snr === 1 ? v.ganztag : null));
+    }
+    return links.concat((FOUND[nr] && FOUND[nr][snr]) || []);
+  }
+  /* Dateinamen: tag03_vormittag.mp4, tag03_nachmittag.mp4, Tag 10 tag10_ganztag.mp4 (zweites Video _2 am Ende) */
   function probe(url) {
     if (!window.fetch || location.protocol === "file:") return Promise.resolve(false);
     var ctl = window.AbortController ? new AbortController() : null;
@@ -70,17 +75,27 @@
   function findVideos() {
     var jobs = [];
     K.days.forEach(function (d) {
-      var base = "videos/tag" + pad(d.nr);
-      ["", "_2", "_3"].forEach(function (suf, i) {
-        ["mp4", "webm", "mov", "m4v"].forEach(function (ext) {
-          var url = base + suf + "." + ext;
-          jobs.push(probe(url).then(function (ok) { if (ok) { (FOUND[d.nr] = FOUND[d.nr] || []).push({ i: i, url: url }); } }));
+      d.sessions.forEach(function (s) {
+        var names = d.klausur ? ["ganztag", "vormittag"] : [s.nr === 1 ? "vormittag" : "nachmittag"];
+        names.forEach(function (nm, ni) {
+          ["", "_2"].forEach(function (suf, si) {
+            ["mp4", "webm", "mov", "m4v"].forEach(function (ext) {
+              var url = "videos/tag" + pad(d.nr) + "_" + nm + suf + "." + ext;
+              jobs.push(probe(url).then(function (ok) {
+                if (!ok) return;
+                FOUND[d.nr] = FOUND[d.nr] || {};
+                (FOUND[d.nr][s.nr] = FOUND[d.nr][s.nr] || []).push({ k: ni * 10 + si, url: url });
+              }));
+            });
+          });
         });
       });
     });
     return Promise.all(jobs).then(function () {
-      Object.keys(FOUND).forEach(function (k) {
-        FOUND[k] = FOUND[k].sort(function (a, b) { return a.i - b.i; }).map(function (x) { return x.url; });
+      Object.keys(FOUND).forEach(function (n) {
+        Object.keys(FOUND[n]).forEach(function (s) {
+          FOUND[n][s] = FOUND[n][s].sort(function (a, b) { return a.k - b.k; }).map(function (x) { return x.url; });
+        });
       });
     });
   }
@@ -120,7 +135,7 @@
       var p = progress(d), auf = d.nr === aktiv, fertig = p.n === p.total;
       h += '<li class="' + (auf ? "an" : "") + '"><details' + (auf ? " open" : "") + '><summary><a href="#/tag/' + d.nr + '"><span class="nnr' + (fertig ? " fertig" : "") + '">' + d.nr +
         '</span><span class="ntext"><b>' + esc(d.kurz) + '</b><small>' + esc(d.weekday.slice(0, 2)) + " " + shortDate(d.date) + "</small></span></a></summary><div class=\"unterpunkte\">";
-      var ziele = [["video", "Video"]];
+      var ziele = [];
       d.sessions.forEach(function (s) { ziele.push(["s" + s.nr, d.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag")]); });
       ziele.push(["frei", "Freiwillig üben"]);
       ziele.forEach(function (z) { h += '<a href="#/tag/' + d.nr + '" data-ziel="' + z[0] + '">' + z[1] + "</a>"; });
@@ -206,7 +221,12 @@
     var lab = d.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag");
     var b = 'd' + d.nr + '-s' + s.nr;
     var h = '<section class="spalte" id="ziel-s' + s.nr + '"><header><h2>' + lab + '</h2><span>' + esc(s.title) + "</span></header>";
+    var vids = videoList(d.nr, s.nr);
+    h += '<div class="video">' + (vids.length ? '<div class="mehr">' + vids.map(embed).join("") + '</div><div class="gesehen">' +
+      check(d.nr + "-s" + s.nr + "-video", "Video") + "<span>Video angesehen</span></div>" :
+      '<div class="folgt"><div><b>Video ' + lab + ' folgt</b>Unterricht zu Präsentation und Skript</div></div>') + "</div>";
     h += '<div class="teil"><p class="unter">' + esc(s.subtitle) + "</p>";
+
     h += eintrag(d.nr + "-s" + s.nr + "-pres", "pres", s.files.pres, "Präsentation",
       s.folien + ' Folien <a href="' + s.files.pres_pdf + '" target="_blank" rel="noopener">als PDF</a>');
     h += eintrag(d.nr + "-s" + s.nr + "-skript", "skript", s.files.skript, "Skript", "zum Nachlesen und Ausdrucken (PDF)");
@@ -230,13 +250,6 @@
       h += '<details class="ziele"><summary>Das lernen Sie heute</summary><ul>' + d.ziele.map(function (z) { return "<li>" + esc(z) + "</li>"; }).join("") +
         "</ul>" + (d.merksatz ? '<div class="merksatz">' + esc(d.merksatz) + "</div>" : "") + "</details>";
     }
-
-    var vids = videoList(d.nr);
-    h += '<section class="spalte video-block" id="ziel-video"><header><h2>Video</h2><span>' + (vids.length ? "Zum Tag " + d.nr : "kommt noch") + "</span>" +
-      (vids.length ? check(d.nr + "-video", "Video") : "") + '</header><div class="video">';
-    if (vids.length) { h += '<div class="mehr">' + vids.map(embed).join("") + "</div>"; }
-    else { h += '<div class="folgt"><div><b>Das Video zu Tag ' + d.nr + ' folgt</b>Es erscheint hier, sobald es hochgeladen ist.</div></div>'; }
-    h += "</div></section>";
 
     h += '<div class="zweispaltig' + (d.sessions.length === 1 ? " eins" : "") + '">' + d.sessions.map(function (s) { return sessionBlock(d, s); }).join("") + "</div>";
 
