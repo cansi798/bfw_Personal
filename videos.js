@@ -1,5 +1,7 @@
 /*
   Videos je Unterrichtstag.
+  Am einfachsten die Videodatei in den Ordner videos legen und tag01.mp4, tag02.mp4 usw. nennen,
+  dann erscheint sie automatisch. Diese Datei hier ist nur für Links (YouTube, Vimeo).
   Einfach den Link zwischen die Anführungszeichen setzen und speichern (committen).
   Erlaubt sind
     YouTube-Links   z. B. "https://youtu.be/abc123" oder "https://www.youtube.com/watch?v=abc123"

@@ -50,11 +50,39 @@
   function isToday(d) { var t = new Date(); t.setHours(0, 0, 0, 0); return parseDate(d.date).getTime() === t.getTime(); }
 
   /* ---------- Videos ---------- */
+  var FOUND = {};
   function videoList(nr) {
     var v = V[nr];
-    if (!v) return [];
+    if (!v) v = [];
     if (!Array.isArray(v)) v = [v];
-    return v.filter(function (x) { return x && String(x).trim(); });
+    v = v.filter(function (x) { return x && String(x).trim(); });
+    return v.concat(FOUND[nr] || []);
+  }
+  /* Videodateien im Ordner videos automatisch finden: tag03.mp4, tag03_2.mp4 und so weiter */
+  function probe(url) {
+    if (!window.fetch || location.protocol === "file:") return Promise.resolve(false);
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 4000);
+    return fetch(url, { method: "HEAD", cache: "no-cache", signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { clearTimeout(timer); return r.ok; })
+      .catch(function () { clearTimeout(timer); return false; });
+  }
+  function findVideos() {
+    var jobs = [];
+    K.days.forEach(function (d) {
+      var base = "videos/tag" + pad(d.nr);
+      ["", "_2", "_3"].forEach(function (suf, i) {
+        ["mp4", "webm", "mov", "m4v"].forEach(function (ext) {
+          var url = base + suf + "." + ext;
+          jobs.push(probe(url).then(function (ok) { if (ok) { (FOUND[d.nr] = FOUND[d.nr] || []).push({ i: i, url: url }); } }));
+        });
+      });
+    });
+    return Promise.all(jobs).then(function () {
+      Object.keys(FOUND).forEach(function (k) {
+        FOUND[k] = FOUND[k].sort(function (a, b) { return a.i - b.i; }).map(function (x) { return x.url; });
+      });
+    });
   }
   function embed(url) {
     url = String(url).trim();
@@ -271,4 +299,5 @@
   if (get("pe26_navzu") === "1") document.body.classList.add("nav-zu");
   window.addEventListener("hashchange", route);
   route();
+  findVideos().then(function () { if (Object.keys(FOUND).length) route(); });
 })();

@@ -19,11 +19,9 @@ Unterlagen nur für Dozierende (Dozentenübersicht, Lösungen zum Aufgabenheft, 
 
 ## Video zu einem Tag hinzufügen
 
-1. `videos.js` öffnen und bearbeiten (auf GitHub mit dem Stift-Symbol).
-2. Beim richtigen Tag den Link eintragen, zum Beispiel `3: "https://youtu.be/abc123",`
-3. Speichern (Commit). Nach etwa einer Minute ist das Video auf der Seite.
+Videodatei in den Ordner `videos` legen und nach dem Tag benennen, zum Beispiel `tag03.mp4` für Tag 3 (zweites Video `tag03_2.mp4`). Die Seite findet die Datei automatisch, nach etwa einer Minute ist sie sichtbar.
 
-Möglich sind YouTube-Links (auch „nicht gelistet“), Vimeo-Links oder eigene Dateien wie `videos/tag03.mp4`. Dateien auf GitHub dürfen höchstens 100 MB groß sein, für längere Videos daher YouTube nicht gelistet verwenden. Mehrere Videos an einem Tag als Liste `["link1", "link2"]`.
+Im Browser auf github.com dürfen Dateien höchstens 25 MB groß sein, mit GitHub Desktop oder git höchstens 100 MB. Größere Videos vorher verkleinern (zum Beispiel HandBrake, „Fast 720p30“) oder als YouTube-Link in `videos.js` eintragen.
 
 ## Hinweis zum Zugangscode
 
