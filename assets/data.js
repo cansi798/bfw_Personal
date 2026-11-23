@@ -25,7 +25,8 @@ window.KURS = {
     "Ich kann die Pflichten von Betrieb und Auszubildenden an Beispielen erklären.",
     "Ich kann die Mindestausbildungsvergütung und den Urlaub von Auszubildenden berechnen.",
     "Ich kann erklären, wie eine Ausbildung endet und wann gekündigt werden kann.",
-    "Ich kann einen Wochenplan einer Jugendlichen nach dem Jugendarbeitsschutzgesetz prüfen."
+    "Ich kann einen Wochenplan einer Jugendlichen nach dem Jugendarbeitsschutzgesetz prüfen.",
+    "Ich kann ein Organigramm lesen und die Aufgaben der Personalabteilung nennen."
    ],
    "merksatz": "Zwei Lernorte, ein Vertrag in Textform, vier Monate Probe höchstens, und für Mia mit 17 gilt zusätzlich der Jugendarbeitsschutz.",
    "sessions": [
@@ -33,7 +34,7 @@ window.KURS = {
      "nr": 1,
      "title": "Das duale System und der Ausbildungsvertrag",
      "subtitle": "Kursstart, Nordstern Fahrradwerke, Lernorte, Beteiligte und BBiG Teil 1",
-     "folien": 24,
+     "folien": 26,
      "fragen": 60,
      "files": {
       "pres": "tage/tag01/praesentation_1.html",
@@ -58,8 +59,8 @@ window.KURS = {
    ],
    "heft": {
     "file": "tage/tag01/aufgabenheft.pdf",
-    "aufgaben": 16,
-    "minuten": 88
+    "aufgaben": 17,
+    "minuten": 92
    },
    "ueb": {
     "ueq1": "tage/tag01/uebungsquiz_1.html",
@@ -90,7 +91,8 @@ window.KURS = {
     "Ich kann den Nettopersonalbedarf einer Abteilung Schritt für Schritt berechnen.",
     "Ich kann die Verfahren Stellenplan, Kennzahlen und Schätzung beschreiben.",
     "Ich kann eine Stellenbeschreibung lesen und ein Anforderungsprofil erstellen.",
-    "Ich kann flexible Arbeitszeitmodelle erklären und Arbeitszeiten nach dem ArbZG prüfen."
+    "Ich kann flexible Arbeitszeitmodelle erklären und Arbeitszeiten nach dem ArbZG prüfen.",
+    "Ich kann die sieben Teilpläne der Personalplanung mit ihren Leitfragen nennen und weitere Modelle wie Kurzarbeit und Arbeit auf Abruf erklären."
    ],
    "merksatz": "Erst den ganzen Bedarf, dann den sicheren Bestand, der Rest ist der Nettobedarf, und jede Arbeitszeit muss in die Grenzen des Arbeitszeitgesetzes passen.",
    "sessions": [
@@ -98,7 +100,7 @@ window.KURS = {
      "nr": 1,
      "title": "Quantitativer Personalbedarf",
      "subtitle": "Aufgaben, Arten und Verfahren der Personalplanung mit der Rechnung für Nordstern",
-     "folien": 24,
+     "folien": 26,
      "fragen": 60,
      "files": {
       "pres": "tage/tag02/praesentation_1.html",
@@ -111,7 +113,7 @@ window.KURS = {
      "nr": 2,
      "title": "Qualitativer Personalbedarf und Arbeitszeitmodelle",
      "subtitle": "Stellenbeschreibung, Anforderungsprofil, flexible Arbeitszeit und Grenzen nach dem ArbZG",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag02/praesentation_2.html",
@@ -123,8 +125,8 @@ window.KURS = {
    ],
    "heft": {
     "file": "tage/tag02/aufgabenheft.pdf",
-    "aufgaben": 16,
-    "minuten": 87
+    "aufgaben": 17,
+    "minuten": 90
    },
    "ueb": {
     "ueq1": "tage/tag02/uebungsquiz_1.html",
@@ -164,7 +166,7 @@ window.KURS = {
      "nr": 1,
      "title": "Wege der Personalbeschaffung und Stellenanzeige",
      "subtitle": "Interne und externe Beschaffung, Personalleasing, Employer Branding",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag03/praesentation_1.html",
@@ -177,7 +179,7 @@ window.KURS = {
      "nr": 2,
      "title": "Bewerbungen auswählen",
      "subtitle": "Von 64 Bewerbungen zur richtigen Einstellung",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag03/praesentation_2.html",
@@ -231,7 +233,7 @@ window.KURS = {
      "nr": 1,
      "title": "Arbeitsvertrag und Tarifbindung",
      "subtitle": "Zustandekommen, Form, Nachweisgesetz, Befristung, Probezeit und Tarifvertrag bei Nordstern",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag04/praesentation_1.html",
@@ -244,7 +246,7 @@ window.KURS = {
      "nr": 2,
      "title": "Ohne Tarifbindung, Pflichten und Personalstammdaten",
      "subtitle": "Gesetzliche Mindeststandards, Rechte und Pflichten, Personalakte, Meldungen und Datenschutz",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag04/praesentation_2.html",
@@ -256,8 +258,8 @@ window.KURS = {
    ],
    "heft": {
     "file": "tage/tag04/aufgabenheft.pdf",
-    "aufgaben": 16,
-    "minuten": 90
+    "aufgaben": 17,
+    "minuten": 95
    },
    "ueb": {
     "ueq1": "tage/tag04/uebungsquiz_1.html",
@@ -310,7 +312,7 @@ window.KURS = {
      "nr": 2,
      "title": "Abzüge, Gehaltsabrechnung und Buchung",
      "subtitle": "Vom Brutto zum Netto und ins Hauptbuch",
-     "folien": 24,
+     "folien": 26,
      "fragen": 60,
      "files": {
       "pres": "tage/tag05/praesentation_2.html",
@@ -322,8 +324,8 @@ window.KURS = {
    ],
    "heft": {
     "file": "tage/tag05/aufgabenheft.pdf",
-    "aufgaben": 16,
-    "minuten": 90
+    "aufgaben": 17,
+    "minuten": 94
    },
    "ueb": {
     "ueq1": "tage/tag05/uebungsquiz_1.html",
@@ -363,7 +365,7 @@ window.KURS = {
      "nr": 1,
      "title": "Ziele und Instrumente der Personalentwicklung",
      "subtitle": "Begriff, drei Bereiche, Instrumente und Förderung",
-     "folien": 24,
+     "folien": 26,
      "fragen": 60,
      "files": {
       "pres": "tage/tag06/praesentation_1.html",
@@ -376,7 +378,7 @@ window.KURS = {
      "nr": 2,
      "title": "Der Personalentwicklungsprozess",
      "subtitle": "Bedarf, Planung, Erfolgskontrolle, Beurteilung, Kosten und Nutzen",
-     "folien": 23,
+     "folien": 26,
      "fragen": 60,
      "files": {
       "pres": "tage/tag06/praesentation_2.html",
@@ -429,7 +431,7 @@ window.KURS = {
      "nr": 1,
      "title": "Führungsstile und Motivation",
      "subtitle": "Lewin, Tannenbaum und Schmidt, Hersey und Blanchard, Maslow, Herzberg, McGregor",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag07/praesentation_1.html",
@@ -442,7 +444,7 @@ window.KURS = {
      "nr": 2,
      "title": "Führungstechniken und Mitarbeitergespräche",
      "subtitle": "Management by Objectives, Exception und Delegation, Gesprächsarten, Ablauf und Feedback",
-     "folien": 23,
+     "folien": 24,
      "fragen": 60,
      "files": {
       "pres": "tage/tag07/praesentation_2.html",
@@ -508,7 +510,7 @@ window.KURS = {
      "nr": 2,
      "title": "Kündigungsschutz, Zeugnis und Abwicklung",
      "subtitle": "KSchG, Betriebsrat, besonderer Schutz, Arbeitszeugnis und Ausscheiden",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag08/praesentation_2.html",
@@ -520,8 +522,8 @@ window.KURS = {
    ],
    "heft": {
     "file": "tage/tag08/aufgabenheft.pdf",
-    "aufgaben": 16,
-    "minuten": 90
+    "aufgaben": 18,
+    "minuten": 103
    },
    "ueb": {
     "ueq1": "tage/tag08/uebungsquiz_1.html",
@@ -561,7 +563,7 @@ window.KURS = {
      "nr": 1,
      "title": "Aufgaben und Arten des Personalcontrollings",
      "subtitle": "Begriff, Ziele, Funktionen, Arten, Daten und Instrumente",
-     "folien": 24,
+     "folien": 26,
      "fragen": 60,
      "files": {
       "pres": "tage/tag09/praesentation_1.html",
@@ -574,7 +576,7 @@ window.KURS = {
      "nr": 2,
      "title": "Personalkennzahlen berechnen und deuten",
      "subtitle": "Fluktuation, Krankheit, Kosten, Überstunden, Ausbildung, Alter und das Cockpit von Nordstern",
-     "folien": 24,
+     "folien": 25,
      "fragen": 60,
      "files": {
       "pres": "tage/tag09/praesentation_2.html",
