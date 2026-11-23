@@ -104,6 +104,16 @@ table.key td,table.key th{border:1px solid var(--line);padding:4px 10px;text-ali
 table.key tr.cur td{background:#fff4c9;font-weight:700}
 .onlyerr .q.ok{display:none}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.modus{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 2px}
+.modus .mlbl{font-weight:600;color:var(--dark);margin-right:4px}
+.mbtn{border:1.5px solid var(--line);background:#fff;color:var(--dark);border-radius:999px;padding:8px 16px;font:inherit;font-size:14.5px;cursor:pointer}
+.mbtn[aria-checked="true"]{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.qcheck{margin-top:10px;display:none}
+.sofort .qcheck{display:block}
+.q.done .qcheck{display:none}
+.q.done .expl{display:block}
+.loes{display:block;font-weight:600;margin-bottom:6px;color:var(--dark)}
+.elbl{display:block;font-size:12.5px;font-weight:700;color:var(--blue);margin-bottom:2px}
 @media (max-width:640px){.grid3{grid-template-columns:1fr}.q{padding:14px 13px}.opt{padding:9px 10px}}
 
 ul.apa{list-style:none;padding:0;margin:0 0 14px}
@@ -119,7 +129,12 @@ ul.apa li{padding-left:2.2em;text-indent:-2.2em;margin:0 0 6px;font-size:13.5px;
  <div class="kicker muted small">M-023 Personal · Tag 10 · Freitag 04.12.2026</div>
  <h1>Übungsquiz 1 · Grundlagen und Begriffe</h1>
  <div class="hint"><span>ℹ️</span><div>Bei jeder Frage sind <b>1 oder 2 Antworten richtig</b>. Kreuzen Sie alle richtigen Antworten an.
- Eine Frage zählt nur, wenn genau die richtigen Antworten angekreuzt sind. Die Reihenfolge der Antworten wird bei jedem Laden neu gemischt.</div></div>
+ Eine Frage zählt nur, wenn genau die richtigen Antworten angekreuzt sind. Zu jeder Lösung gibt es eine Erklärung. Die Reihenfolge der Antworten wird bei jedem Laden neu gemischt.</div></div>
+ <div class="modus noprint" role="radiogroup" aria-label="Wann möchten Sie die Lösung sehen?">
+  <span class="mlbl">Lösung anzeigen</span>
+  <button type="button" class="mbtn" data-mode="sofort" role="radio">Sofort nach jeder Frage</button>
+  <button type="button" class="mbtn" data-mode="ende" role="radio">Erst am Ende</button>
+ </div>
 </div></header>
 <div class="bar noprint"><div class="wrap">
  <div class="prog"><div class="lbl" id="plbl">Beantwortet 0 von 60</div><div class="track"><div class="fill" id="pfill"></div></div></div>
@@ -157,6 +172,7 @@ const list=document.getElementById('qs');
 function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
 function build(){
   perms=D.q.map(q=>shuffle(q.o.map((_,i)=>i)));
+  done=[];
   sel=D.q.map(()=>new Set());
   evaluated=false;
   document.body.classList.remove('evald','onlyerr');
@@ -180,36 +196,48 @@ function build(){
       lab.dataset.oi=oi;
       c.appendChild(lab);
     });
-    const ex=el('div','expl');ex.appendChild(el('span','verdict',''));ex.appendChild(el('span','',q.e));
+    const ex=el('div','expl');ex.appendChild(el('span','verdict',''));ex.appendChild(el('span','loes',''));
+    if(q.e){ex.appendChild(el('span','elbl','Erklärung'));ex.appendChild(el('span','',q.e));}
     c.appendChild(ex);
+    const qb=el('button','btn qcheck','Antwort prüfen');qb.type='button';
+    qb.addEventListener('click',()=>{if(sel[qi].size===0){alert('Bitte zuerst mindestens eine Antwort ankreuzen.');return;}markQ(qi);progress();});
+    c.appendChild(qb);
     list.appendChild(c);
   });
   progress();
 }
+let done=[];
+function markQ(qi){
+  const q=D.q[qi];const c=document.getElementById('q'+(qi+1));
+  const corr=new Set(q.o.map((o,i)=>o[1]?i:-1).filter(i=>i>=0));
+  const s=sel[qi];
+  const right=corr.size===s.size&&[...corr].every(i=>s.has(i));
+  c.classList.add(right?'ok':'ko','done');
+  c.querySelector('.verdict').textContent=right?'Richtig.':(s.size?'Nicht ganz.':'Nicht beantwortet.');
+  const lets=[];
+  c.querySelectorAll('.opt').forEach((lab,pos)=>{
+    const oi=+lab.dataset.oi;const inp=lab.querySelector('input');inp.disabled=true;
+    const m=lab.querySelector('.mark');
+    if(corr.has(oi)){lab.classList.add('right');m.textContent=s.has(oi)?'✓ richtig':'✓ wäre richtig';lets.push(L[pos]+') '+q.o[oi][0]);}
+    else if(s.has(oi)){lab.classList.add('wrong');m.textContent='✗ falsch';}
+  });
+  c.querySelector('.loes').textContent=(corr.size>1?'Richtig sind ':'Richtig ist ')+lets.join(' und ');
+  done[qi]=right;
+  return right;
+}
 function progress(){
   const a=sel.filter(s=>s.size>0).length;
+  if(mode==='sofort'){const g=done.filter(x=>x!==undefined).length, r=done.filter(x=>x===true).length;
+    document.getElementById('plbl').textContent='Geprüft '+g+' von '+D.q.length+', davon richtig '+r;
+    document.getElementById('pfill').style.width=(g/D.q.length*100)+'%';return;}
   document.getElementById('plbl').textContent='Beantwortet '+a+' von '+D.q.length;
   document.getElementById('pfill').style.width=(a/D.q.length*100)+'%';
 }
 function evaluate(){
-  const open=sel.filter(s=>s.size===0).length;
+  const open=D.q.filter((q,qi)=>sel[qi].size===0&&done[qi]===undefined).length;
   if(open>0 && !confirm(open+' Fragen sind noch offen. Trotzdem auswerten?'))return;
   let ok=0;
-  D.q.forEach((q,qi)=>{
-    const c=document.getElementById('q'+(qi+1));
-    const corr=new Set(q.o.map((o,i)=>o[1]?i:-1).filter(i=>i>=0));
-    const s=sel[qi];
-    const right=corr.size===s.size&&[...corr].every(i=>s.has(i));
-    if(right)ok++;
-    c.classList.add(right?'ok':'ko');
-    c.querySelector('.verdict').textContent=right?'Richtig.':'Nicht ganz.';
-    c.querySelectorAll('.opt').forEach(lab=>{
-      const oi=+lab.dataset.oi;const inp=lab.querySelector('input');inp.disabled=true;
-      const m=lab.querySelector('.mark');
-      if(corr.has(oi)){lab.classList.add('right');m.textContent=s.has(oi)?'✓ richtig':'✓ wäre richtig';}
-      else if(s.has(oi)){lab.classList.add('wrong');m.textContent='✗ falsch';}
-    });
-  });
+  D.q.forEach((q,qi)=>{ const r=(done[qi]!==undefined)?done[qi]:markQ(qi); if(r)ok++; });
   evaluated=true;
   document.getElementById('btnEval').disabled=true;document.getElementById('btnEval2').disabled=true;
   document.body.classList.add('evald');
@@ -232,12 +260,23 @@ function reshuffle(){
   if(sel.some(s=>s.size>0)&&!evaluated&&!confirm('Neu mischen löscht alle Antworten. Fortfahren?'))return;
   build();window.scrollTo({top:0,behavior:'smooth'});
 }
+let mode='sofort';
+try{mode=localStorage.getItem('quizmodus')||'sofort';}catch(e){}
+function setMode(m,ask){
+  if(ask&&m!==mode&&(sel.some(s=>s.size>0)||evaluated)&&!confirm('Beim Wechsel werden Ihre Antworten zurückgesetzt. Fortfahren?'))return;
+  mode=m;try{localStorage.setItem('quizmodus',m);}catch(e){}
+  document.body.classList.toggle('sofort',m==='sofort');
+  document.querySelectorAll('.mbtn').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.mode===m)));
+  if(ask)build();else progress();
+}
+document.querySelectorAll('.mbtn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode,true)));
 document.getElementById('btnEval').onclick=evaluate;
 document.getElementById('btnEval2').onclick=evaluate;
 document.getElementById('btnErr').onclick=toggleErr;
 document.getElementById('btnMix').onclick=reshuffle;
 document.getElementById('btnMix2').onclick=reshuffle;
 build();
+setMode(mode,false);
 
 </script>
 </body>

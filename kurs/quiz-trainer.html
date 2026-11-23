@@ -104,6 +104,16 @@ table.key td,table.key th{border:1px solid var(--line);padding:4px 10px;text-ali
 table.key tr.cur td{background:#fff4c9;font-weight:700}
 .onlyerr .q.ok{display:none}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.modus{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 2px}
+.modus .mlbl{font-weight:600;color:var(--dark);margin-right:4px}
+.mbtn{border:1.5px solid var(--line);background:#fff;color:var(--dark);border-radius:999px;padding:8px 16px;font:inherit;font-size:14.5px;cursor:pointer}
+.mbtn[aria-checked="true"]{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.qcheck{margin-top:10px;display:none}
+.sofort .qcheck{display:block}
+.q.done .qcheck{display:none}
+.q.done .expl{display:block}
+.loes{display:block;font-weight:600;margin-bottom:6px;color:var(--dark)}
+.elbl{display:block;font-size:12.5px;font-weight:700;color:var(--blue);margin-bottom:2px}
 @media (max-width:640px){.grid3{grid-template-columns:1fr}.q{padding:14px 13px}.opt{padding:9px 10px}}
 
 .tabs{display:flex;gap:8px;margin:18px 0 0;flex-wrap:wrap}
@@ -141,7 +151,7 @@ select{font:15px 'Inter',sans-serif;padding:8px 10px;border-radius:9px;border:1p
 ul.apa{list-style:none;padding:0;margin:0 0 14px}
 ul.apa li{padding-left:2.2em;text-indent:-2.2em;margin:0 0 6px;font-size:13.5px;color:#333}
 .quellen h3{margin-top:0}
-.q.shown .expl{display:block}
+.q.shown .expl{display:block}.loes{display:block;font-weight:600;margin-bottom:6px;color:var(--dark)}.elbl{display:block;font-size:12.5px;font-weight:700;color:var(--blue);margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -276,16 +286,19 @@ function card(qi,num,total,opts){
     inp.addEventListener('change',()=>{if(inp.checked)sel.add(oi);else sel.delete(oi);lab.classList.toggle('sel',inp.checked);if(opts&&opts.onchange)opts.onchange();});
     lab.appendChild(inp);lab.appendChild(el('span','ol',L[pos]+')'));lab.appendChild(el('span','ot',q.o[oi][0]));lab.appendChild(el('span','mark',''));lab.dataset.oi=oi;c.appendChild(lab);
   });
-  const ex=el('div','expl');ex.appendChild(el('span','verdict',''));ex.appendChild(el('span','',q.e));c.appendChild(ex);
+  const ex=el('div','expl');ex.appendChild(el('span','verdict',''));ex.appendChild(el('span','loes',''));
+  if(q.e){ex.appendChild(el('span','elbl','Erklärung'));ex.appendChild(el('span','',q.e));}c.appendChild(ex);
   return {el:c,sel,qi,perm};
 }
 function judge(k){
   const q=D.q[k.qi];const corr=new Set(q.o.map((o,i)=>o[1]?i:-1).filter(i=>i>=0));
   const ok=corr.size===k.sel.size&&[...corr].every(i=>k.sel.has(i));
   k.el.classList.add(ok?'ok':'ko');k.el.querySelector('.verdict').textContent=ok?'Richtig.':'Nicht ganz.';
-  k.el.querySelectorAll('.opt').forEach(lab=>{const oi=+lab.dataset.oi;lab.querySelector('input').disabled=true;const m=lab.querySelector('.mark');
-    if(corr.has(oi)){lab.classList.add('right');m.textContent=k.sel.has(oi)?'✓ richtig':'✓ wäre richtig';}
+  const lets=[];
+  k.el.querySelectorAll('.opt').forEach((lab,pos)=>{const oi=+lab.dataset.oi;lab.querySelector('input').disabled=true;const m=lab.querySelector('.mark');
+    if(corr.has(oi)){lab.classList.add('right');m.textContent=k.sel.has(oi)?'✓ richtig':'✓ wäre richtig';lets.push(L[pos]+') '+q.o[oi][0]);}
     else if(k.sel.has(oi)){lab.classList.add('wrong');m.textContent='✗ falsch';}});
+  k.el.querySelector('.loes').textContent=(corr.size>1?'Richtig sind ':'Richtig ist ')+lets.join(' und ');
   k.el.classList.add('shown');k.el.querySelector('.expl').style.display='block';
   return ok;
 }
