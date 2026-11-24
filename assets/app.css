@@ -225,3 +225,12 @@ body.nav-zu .seitennav{visibility:hidden;padding:0;border:0}
 }
 .kopf .wrap{max-width:none;padding:0 18px}
 .gesehen{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--grau);font-size:.9rem}
+
+.spielwelt{margin-top:20px}
+.spielwelt > header{background:#e7f5ee}
+.spielwelt > header h2{color:#1f6b4f}
+.spielwelt .symbol{background:#e7f5ee;color:#1f6b4f}
+.st{color:#d99a00;letter-spacing:1px;white-space:nowrap}
+.spielinfo{padding:12px 20px;color:var(--grau);font-size:.86rem}
+.kursmaterial{grid-template-columns:repeat(3,1fr)}
+@media (max-width:860px){.kursmaterial{grid-template-columns:1fr}}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<script>try{if(localStorage.getItem('pe26_ok')!=='1'){location.replace('../../index.html');}}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#003366">
+<title>Nordstern City 3D · Spielwelt Personalwesen</title>
+<link rel="icon" type="image/png" href="../../assets/img/waybuild_akademie.png">
+<link rel="preload" href="../../assets/fonts/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/kalam-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="stadt.css">
+</head>
+<body>
+<div id="welt" aria-label="3D-Spielwelt Nordstern City"></div>
+<div id="ziele" aria-hidden="true"></div>
+<div id="schwebe" aria-hidden="true"></div>
+
+<!-- HUD -->
+<div id="hud" class="aus">
+  <div class="hud-oben">
+    <button class="rund" id="btnMenue" aria-label="Pause und Menü">☰</button>
+    <div class="status"><b id="hMission">Mission</b><span id="hRunde"></span></div>
+    <div class="punkte"><span id="hPunkte">0</span><small>Punkte</small></div>
+    <div class="zeit" id="hZeit">60</div>
+  </div>
+  <div class="auftrag" id="auftrag">
+    <button class="klapp" id="btnKlapp" aria-label="Auftrag ein- oder ausklappen">▾</button>
+    <div class="frage" id="aFrage"></div>
+    <ol class="antworten" id="aListe"></ol>
+    <div class="navi-tipp" id="aTipp"></div>
+  </div>
+  <canvas id="mini" aria-label="Minikarte"></canvas>
+  <div class="tacho"><div><b id="hKmh">0</b><small>km/h</small></div><div class="turbo" title="Turbo"><i id="hTurbo"></i></div></div>
+  <div class="tipp" id="tipp"></div>
+  <div class="ticker" id="ticker"><span id="tickerTxt">Radio Nordstern</span></div>
+  <div class="joy" id="joy"><div class="knauf" id="knauf"></div></div>
+  <div class="tasten" id="tasten">
+    <button class="tbtn hupe" id="tHupe" aria-label="Hupe">📯</button>
+    <button class="tbtn bremse" id="tBremse" aria-label="Bremse">Bremse</button>
+    <button class="tbtn turbo" id="tTurbo" aria-label="Turbo">Turbo</button>
+  </div>
+</div>
+
+<!-- Ebenen -->
+<div class="ebene" id="eLaden"><div class="karte klein"><h2>Nordstern City 3D</h2><p class="leise">Die Stadt wird gebaut. Einen Moment bitte.</p><div class="ladebalken"><i></i></div></div></div>
+
+<div class="ebene versteckt" id="eKeinGL">
+  <div class="karte">
+    <img src="../../assets/img/waybuild_akademie.png" alt="Waybuild Akademie" class="logo">
+    <h2>3D ist hier leider nicht möglich</h2>
+    <p>Ihr Browser oder Gerät kann keine 3D-Grafik (WebGL) anzeigen. Die Missionen gibt es auch in der 2D-Version mit denselben Inhalten.</p>
+    <a class="knopf als-link" id="lnkGl2d" href="../stadt2d/index.html">Zur 2D-Version</a>
+    <a class="knopf leise als-link" id="lnkGlLern" href="../../index.html">Zur Lernseite</a>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="eMenue">
+  <div class="karte breit">
+    <img src="../../assets/img/waybuild_akademie.png" alt="Waybuild Akademie" class="logo">
+    <h1>Nordstern City <span class="drei">3D</span></h1>
+    <p class="leise">Die Spielwelt zum Kurs Personalwesen. Steigen Sie auf das Nordstern-Lastenrad, fahren Sie durch die Stadt und lösen Sie die Missionen zum Thema des Tages.</p>
+    <label class="feld">Unterrichtstag
+      <select id="selTag"></select>
+    </label>
+    <div class="missionen" id="missionen"></div>
+    <div class="menue-links">
+      <button class="link-knopf" id="btnHilfe" type="button">So wird gespielt</button>
+      <a id="lnk2d" href="../stadt2d/index.html">2D-Version</a>
+      <a id="lnkZurueck" href="../../index.html">Zur Lernseite</a>
+    </div>
+    <p class="copy">© 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de</p>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="eHilfe">
+  <div class="karte breit">
+    <h2>So wird gespielt</h2>
+    <ul class="hilfe-liste">
+      <li><b>Fahren am Computer</b> W oder Pfeil hoch gibt Gas. S oder Pfeil runter bremst und fährt rückwärts. A und D oder die Pfeile links und rechts lenken.</li>
+      <li><b>Extras</b> Umschalt gibt Turbo, die Leertaste macht eine Vollbremsung, H hupt. Esc oder P öffnet die Pause. Mit den Tasten 1 bis 4 stellen Sie das Navi auf ein Ziel.</li>
+      <li><b>Fahren am Handy</b> Der Steuerkreis links lenkt. Nach oben schieben gibt Gas, nach unten bremst. Rechts finden Sie Turbo, Bremse und Hupe.</li>
+      <li><b>Navi</b> Der Pfeil über dem Rad zeigt zum Navi-Ziel. Tippen Sie im Auftrag auf eine Antwort, dann führt der Pfeil dorthin. Pfeile am Bildschirmrand und die Minikarte zeigen alle Ziele.</li>
+      <li><b>Lern-Tour</b> Fahren Sie die blauen Lernsäulen an und lesen Sie die Karte mit dem Kernwissen des Tages.</li>
+      <li><b>Kurier-Mission</b> Oben steht eine Frage mit vier Antworten A bis D. Fahren Sie zur farbigen Säule der richtigen Antwort. Pro Runde haben Sie 60 Sekunden.</li>
+      <li><b>Lastenrad-Logistik</b> Auf dem Rad liegt ein Paket mit einer Aussage. Bringen Sie es in das passende Depot.</li>
+      <li><b>Nach jeder Antwort</b> sehen Sie die Lösung mit Erklärung. Schnelle richtige Antworten bringen Bonuspunkte. Am Ende gibt es eine Zusammenfassung und bis zu drei Sterne.</li>
+      <li><b>Verkehr</b> Autos dürfen Sie anrempeln, die fliegen dann im Comic-Stil davon. Das kostet keine Punkte, aber etwas Zeit.</li>
+    </ul>
+    <button class="knopf" id="btnHilfeZu">Alles klar</button>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="eFeedback">
+  <div class="karte">
+    <div class="urteil" id="fUrteil"></div>
+    <p class="wahl" id="fWahl"></p>
+    <p class="loesung" id="fLoesung"></p>
+    <p class="erkl"><b>Erklärung</b><span id="fErkl"></span></p>
+    <p class="witz" id="fWitz"></p>
+    <button class="knopf" id="btnWeiter">Weiter</button>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="ePause">
+  <div class="karte">
+    <h2>Pause</h2>
+    <button class="knopf" id="btnFortsetzen">Weiterfahren</button>
+    <button class="knopf leise" id="btnNeustart">Mission neu starten</button>
+    <button class="knopf leise" id="btnPauseHilfe">So wird gespielt</button>
+    <button class="knopf leise" id="btnTon">Ton aus</button>
+    <button class="knopf leise" id="btnAbbrechen">Zurück zum Menü</button>
+    <a class="knopf leise als-link" id="lnkPauseLern" href="../../index.html">Zur Lernseite</a>
+    <p class="copy">© 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de</p>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="eErgebnis">
+  <div class="karte breit">
+    <h2 id="rTitel">Mission geschafft</h2>
+    <div class="sterne" id="rSterne"></div>
+    <p id="rText"></p>
+    <h3 class="zus-titel">Zusammenfassung</h3>
+    <div class="zus" id="rZus"></div>
+    <div class="knopfreihe">
+      <button class="knopf" id="btnNochmal">Noch einmal</button>
+      <button class="knopf leise" id="btnZumMenue">Andere Mission</button>
+    </div>
+    <a class="zurueck" id="lnkErgLern" href="../../index.html">Zur Lernseite</a>
+  </div>
+</div>
+
+<script src="../daten.js"></script>
+<script src="../humor.js"></script>
+<script type="module" src="stadt.js"></script>
+</body>
+</html>

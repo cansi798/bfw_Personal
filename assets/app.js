@@ -78,16 +78,11 @@
       d.sessions.forEach(function (s) {
         var names = d.klausur ? ["ganztag", "vormittag"] : [s.nr === 1 ? "vormittag" : "nachmittag"];
         names.forEach(function (nm, ni) {
-          ["", "_2"].forEach(function (suf, si) {
-            ["mp4", "webm", "mov", "m4v"].forEach(function (ext) {
-              var url = "videos/tag" + pad(d.nr) + "_" + nm + suf + "." + ext;
-              jobs.push(probe(url).then(function (ok) {
-                if (!ok) return;
-                FOUND[d.nr] = FOUND[d.nr] || {};
-                (FOUND[d.nr][s.nr] = FOUND[d.nr][s.nr] || []).push({ k: ni * 10 + si, url: url });
-              }));
-            });
-          });
+          var base = "videos/tag" + pad(d.nr) + "_" + nm;
+          var add = function (url, k) { FOUND[d.nr] = FOUND[d.nr] || {}; (FOUND[d.nr][s.nr] = FOUND[d.nr][s.nr] || []).push({ k: k, url: url }); };
+          jobs.push(probe(base + ".mp4").then(function (ok) {
+            if (ok) { add(base + ".mp4", ni * 10); return probe(base + "_2.mp4").then(function (ok2) { if (ok2) add(base + "_2.mp4", ni * 10 + 1); }); }
+          }));
         });
       });
     });
@@ -137,11 +132,11 @@
         '</span><span class="ntext"><b>' + esc(d.kurz) + '</b><small>' + esc(d.weekday.slice(0, 2)) + " " + shortDate(d.date) + "</small></span></a></summary><div class=\"unterpunkte\">";
       var ziele = [];
       d.sessions.forEach(function (s) { ziele.push(["s" + s.nr, d.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag")]); });
-      ziele.push(["frei", "Freiwillig üben"]);
+      ziele.push(["spiel", "Spielwelt"]); ziele.push(["frei", "Freiwillig üben"]);
       ziele.forEach(function (z) { h += '<a href="#/tag/' + d.nr + '" data-ziel="' + z[0] + '">' + z[1] + "</a>"; });
       h += "</div></details></li>";
     });
-    h += '</ol><div class="nav-kurs"><a href="' + K.kursfiles.trainer + '" target="_blank" rel="noopener">Quiz-Trainer</a><a href="' + K.kursfiles.gesamt + '" target="_blank" rel="noopener">Gesamtskript</a></div></nav>';
+    h += '</ol><div class="nav-kurs"><a href="spiel/index.html" target="_blank" rel="noopener">Spielwelt Nordstern City</a><a href="' + K.kursfiles.trainer + '" target="_blank" rel="noopener">Quiz-Trainer</a><a href="' + K.kursfiles.gesamt + '" target="_blank" rel="noopener">Gesamtskript</a></div></nav>';
     return h;
   }
   function rahmen(aktiv, inhalt) {
@@ -212,7 +207,8 @@
 
     h += '<h2 class="abschnitt-titel">Für den ganzen Kurs</h2><div class="kursmaterial">' +
       '<div class="spalte">' + eintrag("kurs-trainer", "trainer", K.kursfiles.trainer, "Quiz-Trainer und Probeklausur", "Alle Fragen aller Tage üben, Probeklausur mit 30 Fragen") + "</div>" +
-      '<div class="spalte">' + eintrag("kurs-gesamt", "skript", K.kursfiles.gesamt, "Gesamtskript aller Tage", "Alle Skripte in einer PDF mit Glossar") + "</div></div>";
+      '<div class="spalte">' + eintrag("kurs-gesamt", "skript", K.kursfiles.gesamt, "Gesamtskript aller Tage", "Alle Skripte in einer PDF mit Glossar") + "</div>" +
+      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spielwelt Nordstern City", "3D-Stadt mit Missionen und Rennspiel zu jedem Tag") + "</div></div>";
     app.innerHTML = rahmen(0, h);
   }
 
@@ -253,6 +249,15 @@
 
     h += '<div class="zweispaltig' + (d.sessions.length === 1 ? " eins" : "") + '">' + d.sessions.map(function (s) { return sessionBlock(d, s); }).join("") + "</div>";
 
+    var sp = {}; try { sp = JSON.parse(get("pe26_spiel") || "{}") || {}; } catch (e) { sp = {}; }
+    var stern = function (k) { var n = sp[d.nr + "-" + k] || 0; return "★★★".slice(0, n) + "☆☆☆".slice(0, 3 - n); };
+    var sl = function (k) { return k === "rennen" ? "spiel/rennen/index.html?tag=" + d.nr : "spiel/stadt/index.html?tag=" + d.nr + "&m=" + k + "&start=1"; };
+    h += '<section class="spalte spielwelt" id="ziel-spiel"><header><h2>Spielwelt Nordstern City</h2><span>Themen des Tages in 3D lernen und üben, in der Stadt und auf der Rennstrecke</span></header><div class="freigitter"><div>' +
+      eintrag(d.nr + "-sp-lernen", "trainer", sl("lernen"), "Lern-Tour", "Lernpunkte anfahren und Kernthemen lesen <span class=\"st\">" + stern("lernen") + "</span>") +
+      eintrag(d.nr + "-sp-kurier", "trainer", sl("kurier"), "Kurier-Mission", "Fragen beantworten, zur richtigen Antwort fahren <span class=\"st\">" + stern("kurier") + "</span>") + "</div><div>" +
+      eintrag(d.nr + "-sp-logistik", "trainer", sl("logistik"), "Lastenrad-Logistik", "Pakete mit Aussagen ins richtige Depot bringen <span class=\"st\">" + stern("logistik") + "</span>") +
+      eintrag(d.nr + "-sp-rennen", "trainer", sl("rennen"), "Nordstern Racing", "Rennen mit Frage-Toren, richtige Spur gibt Nitro <span class=\"st\">" + stern("rennen") + "</span>") +
+      '<div class="spielinfo">3D im Browser, mit Action im Comic-Stil und Radio Nordstern. <a href="spiel/index.html?tag=' + d.nr + '" target="_blank" rel="noopener">Alle Spiele</a>, <a href="spiel/stadt2d/index.html?tag=' + d.nr + '" target="_blank" rel="noopener">2D-Version für ältere Geräte</a></div></div></div></section>';
     var u = d.ueb, m = d.ueb_meta;
     h += '<section class="spalte frei" id="ziel-frei"><header><h2>Freiwillig üben</h2><span class="marke">freiwillig</span><span>zur Vertiefung und zum Üben zu Hause</span></header><div class="freigitter">';
     h += '<div>' + eintrag(d.nr + "-heft", "heft", d.heft.file, d.klausur ? "Aufgabenheft Klausurtraining" : "Aufgabenheft des Tages",

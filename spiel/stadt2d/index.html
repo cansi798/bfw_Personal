@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('pe26_ok')!=='1'){location.replace('../../index.html');}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#003366">
+<title>Nordstern City · Spielwelt Personalwesen</title>
+<link rel="icon" type="image/png" href="../../assets/img/waybuild_akademie.png">
+<link rel="stylesheet" href="spiel.css">
+</head>
+<body>
+<canvas id="welt" aria-label="Spielwelt Nordstern City"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="aus">
+  <div class="hud-oben">
+    <button class="rund" id="btnMenue" aria-label="Pause und Menü">☰</button>
+    <div class="status"><b id="hMission">Mission</b><span id="hRunde"></span></div>
+    <div class="punkte"><span id="hPunkte">0</span><small>Punkte</small></div>
+    <div class="zeit" id="hZeit">60</div>
+  </div>
+  <div class="auftrag" id="auftrag">
+    <button class="klapp" id="btnKlapp" aria-label="Auftrag ein- oder ausklappen">▾</button>
+    <div class="frage" id="aFrage"></div>
+    <ol class="antworten" id="aListe"></ol>
+  </div>
+  <div class="joy" id="joy"><div class="knauf" id="knauf"></div></div>
+  <div class="tipp" id="tipp">Pfeiltasten oder WASD zum Fahren · Leertaste bremst</div>
+</div>
+
+<!-- Overlays -->
+<div class="ebene" id="eMenue">
+  <div class="karte breit">
+    <img src="../../assets/img/waybuild_akademie.png" alt="Waybuild Akademie" class="logo">
+    <h1>Nordstern City</h1>
+    <p class="leise">Die Spielwelt zum Kurs Personalwesen. Fahren Sie mit dem Nordstern-Lastenrad durch die Stadt und lösen Sie Missionen zum Thema des Tages.</p>
+    <label class="feld">Unterrichtstag
+      <select id="selTag"></select>
+    </label>
+    <div class="missionen" id="missionen"></div>
+    <details class="hilfe"><summary>So wird gespielt</summary>
+      <ul>
+        <li><b>Fahren</b> am Computer mit Pfeiltasten oder WASD, Leertaste bremst. Am Handy mit dem Steuerkreis unten links.</li>
+        <li><b>Kurier-Mission</b> Oben steht eine Frage mit vier Antworten A bis D. Fahren Sie zum farbigen Ziel der richtigen Antwort. Pfeile am Bildschirmrand und die Karte zeigen den Weg.</li>
+        <li><b>Lastenrad-Logistik</b> Auf dem Rad liegt ein Paket mit einer Aussage. Bringen Sie es in das passende Depot.</li>
+        <li>Nach jeder Antwort sehen Sie die Lösung mit Erklärung. Schnelle richtige Antworten bringen Bonuspunkte.</li>
+        <li>Autos sind nur Verkehr. Ein Zusammenstoß bremst Sie, kostet aber keine Punkte.</li>
+      </ul>
+    </details>
+    <a class="zurueck" id="lnkZurueck" href="../../index.html">Zur Lernseite</a>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="eFeedback">
+  <div class="karte">
+    <div class="urteil" id="fUrteil"></div>
+    <p class="loesung" id="fLoesung"></p>
+    <p class="erkl"><b>Erklärung</b><span id="fErkl"></span></p>
+    <p class="witz" id="fWitz"></p>
+    <button class="knopf" id="btnWeiter">Weiter</button>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="ePause">
+  <div class="karte">
+    <h2>Pause</h2>
+    <button class="knopf" id="btnFortsetzen">Weiterfahren</button>
+    <button class="knopf leise" id="btnAbbrechen">Mission beenden</button>
+  </div>
+</div>
+
+<div class="ebene versteckt" id="eErgebnis">
+  <div class="karte">
+    <h2 id="rTitel">Mission geschafft</h2>
+    <div class="sterne" id="rSterne"></div>
+    <p id="rText"></p>
+    <button class="knopf" id="btnNochmal">Noch einmal</button>
+    <button class="knopf leise" id="btnZumMenue">Andere Mission</button>
+  </div>
+</div>
+
+<div class="fuss">© 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de</div>
+
+<script src="../daten.js"></script>
+<script src="spiel.js"></script>
+</body>
+</html>

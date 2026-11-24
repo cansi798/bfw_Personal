@@ -1,0 +1,159 @@
+/* Nordstern City 3D · © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt) */
+@font-face{font-family:"Kalam";font-weight:700;font-display:swap;src:url(../../assets/fonts/kalam-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(../../assets/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-display:swap;src:url(../../assets/fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:700;font-display:swap;src:url(../../assets/fonts/inter-latin-700-normal.woff2) format("woff2")}
+:root{--blau:#0077a6;--tief:#003366;--tinte:#16263a;--grau:#5b6b7c;--ok:#2f8f6b;--ko:#c0392b;--gelb:#f2a900}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#bfe3f7;font:16px/1.45 "Inter",system-ui,sans-serif;color:var(--tinte);
+  -webkit-user-select:none;user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+#welt{position:fixed;inset:0}
+#welt canvas{display:block;width:100%;height:100%}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gelb);outline-offset:2px}
+a{color:var(--blau)}
+
+/* Ziel-Anzeigen und Schwebetexte */
+#ziele,#schwebe{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.ziel{position:absolute;left:0;top:0;width:0;height:0;will-change:transform}
+.ziel .pf{position:absolute;left:-16px;top:-16px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  color:#fff;font:700 15px "Inter",sans-serif;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.ziel .sp{position:absolute;left:12px;top:-13px;width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:16px solid #fff;display:none}
+.ziel.rand .sp{display:block}
+.ziel .di{position:absolute;left:-40px;top:18px;width:80px;text-align:center;font:700 12px "Inter",sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.ziel.navi .pf{box-shadow:0 0 0 4px rgba(242,169,0,.9),0 3px 10px rgba(0,0,0,.35)}
+.flt{position:absolute;left:0;top:0;white-space:nowrap;font:700 30px/1 "Kalam",cursive;color:#ffd54f;
+  text-shadow:-2px -2px 0 #16263a,2px -2px 0 #16263a,-2px 2px 0 #16263a,2px 2px 0 #16263a,0 4px 8px rgba(0,0,0,.4);will-change:transform,opacity}
+.flt small{display:block;font:600 14px "Inter",sans-serif;color:#fff;text-align:center;margin-top:2px}
+.flt.gruen{color:#9ff0b8}
+.flt.weiss{color:#fff;font-size:24px}
+
+/* HUD */
+#hud.aus{display:none}
+.hud-oben{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:8px;align-items:stretch;pointer-events:none;z-index:3}
+.hud-oben > *{pointer-events:auto}
+.rund{width:46px;border:0;border-radius:14px;background:rgba(255,255,255,.94);color:var(--tief);font-size:20px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.status,.punkte,.zeit{background:rgba(255,255,255,.94);border-radius:14px;padding:6px 12px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.status{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.2}
+.status b{color:var(--tief);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status span{font-size:.8rem;color:var(--grau)}
+.punkte{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;min-width:64px}
+.punkte span{font:700 1.35rem "Kalam",cursive;color:var(--blau)}
+.punkte small{font-size:.68rem;color:var(--grau)}
+.zeit{min-width:64px;display:grid;place-items:center;font:700 1.4rem "Kalam",cursive;color:var(--tief)}
+.zeit.knapp{background:#ffe3df;color:var(--ko)}
+
+.auftrag{position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));width:min(700px,calc(100vw - 20px));z-index:3;
+  background:rgba(255,255,255,.95);border-radius:16px;padding:12px 44px 10px 16px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.auftrag .frage{font-weight:600;color:var(--tief);font-size:.98rem}
+.antworten{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.antworten li{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;line-height:1.3;padding:5px 8px;border-radius:9px;background:#f3f6f9;cursor:pointer;border:2px solid transparent}
+.antworten li:hover{background:#e7eff6}
+.antworten li.navi{border-color:var(--gelb);background:#fff7e0}
+.antworten .bad{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:.8rem}
+.antworten small{color:var(--grau)}
+.navi-tipp{font-size:.74rem;color:var(--grau);margin-top:6px}
+.navi-tipp:empty{display:none}
+.klapp{position:absolute;right:8px;top:8px;width:30px;height:30px;border:0;border-radius:9px;background:#eef3f7;color:var(--tief)}
+.auftrag.zu .antworten,.auftrag.zu .navi-tipp{display:none}
+.auftrag.zu .frage{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.auftrag.zu .klapp{transform:rotate(180deg)}
+
+#mini{position:fixed;right:14px;bottom:44px;width:170px;height:170px;border-radius:50%;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:2}
+.tacho{position:fixed;left:14px;bottom:44px;background:rgba(255,255,255,.92);border-radius:14px;padding:6px 12px 8px;box-shadow:0 4px 14px rgba(0,0,0,.25);min-width:96px;z-index:2}
+.tacho b{font:700 1.6rem/1 "Kalam",cursive;color:var(--tief)}
+.tacho small{font-size:.7rem;color:var(--grau);margin-left:4px}
+.turbo{height:8px;border-radius:9px;background:#e3e9ef;margin-top:4px;overflow:hidden}
+.turbo i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#f2a900,#ff6b2c);border-radius:9px;transform-origin:left center}
+.tipp{position:fixed;left:50%;transform:translateX(-50%);bottom:42px;background:rgba(0,30,50,.75);color:#fff;font-size:.82rem;padding:6px 14px;border-radius:99px;
+  transition:opacity .6s;white-space:nowrap;max-width:calc(100vw - 420px);overflow:hidden;text-overflow:ellipsis;z-index:2}
+.tipp.weg{opacity:0}
+.ticker{position:fixed;left:0;right:0;bottom:0;height:28px;background:rgba(0,51,102,.88);color:#fff;font-size:.84rem;line-height:28px;overflow:hidden;white-space:nowrap;z-index:2;
+  padding-bottom:env(safe-area-inset-bottom);box-sizing:content-box}
+.ticker span{display:inline-block;padding-left:100%;animation:lauf 22s linear infinite}
+.ticker::before{content:"📻";position:absolute;left:0;top:0;bottom:0;width:34px;text-align:center;background:var(--gelb);z-index:1}
+@keyframes lauf{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+.joy{position:fixed;left:calc(22px + env(safe-area-inset-left));bottom:calc(46px + env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;
+  background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.65);display:none;touch-action:none;z-index:4;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.joy .knauf{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(0,0,0,.3);pointer-events:none}
+.tasten{position:fixed;right:calc(14px + env(safe-area-inset-right));bottom:calc(46px + env(safe-area-inset-bottom));display:none;z-index:4;width:160px;height:150px}
+.tbtn{position:absolute;border:0;border-radius:50%;color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.35);touch-action:none;
+  border:3px solid rgba(255,255,255,.8)}
+.tbtn.turbo{right:0;bottom:0;width:84px;height:84px;background:linear-gradient(160deg,#ffb733,#ff6b2c);font-size:.92rem}
+.tbtn.bremse{left:0;bottom:6px;width:66px;height:66px;background:rgba(192,57,43,.92);font-size:.78rem}
+.tbtn.hupe{left:34px;top:0;width:52px;height:52px;background:rgba(0,119,166,.92);font-size:1.3rem;padding:0}
+.tbtn.an{transform:scale(.92);filter:brightness(1.15)}
+body.touch .joy,body.touch .tasten{display:block}
+body.touch .tipp{display:none}
+body.touch #mini{left:14px;right:auto;bottom:calc(192px + env(safe-area-inset-bottom));width:104px;height:104px}
+body.touch .tacho{left:auto;right:14px;bottom:calc(206px + env(safe-area-inset-bottom));min-width:84px;padding:4px 10px 6px}
+body.touch .tacho b{font-size:1.3rem}
+
+/* Ebenen */
+.ebene{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(6,24,40,.5);z-index:10;overflow:auto}
+.ebene.versteckt{display:none}
+#eMenue{background:linear-gradient(90deg,rgba(6,24,40,.55),rgba(6,24,40,.15))}
+.karte{width:min(470px,100%);background:#fff;border-radius:20px;padding:24px 22px 20px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:left;max-height:calc(100vh - 32px);overflow:auto}
+.karte.breit{width:min(640px,100%)}
+.karte.klein{width:min(360px,100%);text-align:center}
+.karte .logo{height:44px;display:block;margin-bottom:10px}
+.karte h1{font:700 2.6rem/1 "Kalam",cursive;color:var(--tief);margin:0 0 6px}
+.karte h1 .drei{display:inline-block;background:var(--blau);color:#fff;border-radius:12px;padding:2px 12px 0;font-size:.8em;transform:rotate(-4deg)}
+.karte h2{font:700 2rem/1.1 "Kalam",cursive;color:var(--tief);margin:0 0 12px}
+.leise{color:var(--grau);margin:0 0 16px}
+.feld{display:flex;flex-direction:column;gap:6px;font-weight:600;margin-bottom:14px}
+.feld select{padding:11px 12px;border:2px solid #d6e0ea;border-radius:12px;font:inherit;background:#fbfdfe}
+.missionen{display:grid;gap:10px;margin-bottom:14px}
+.mission{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;text-align:left;border:2px solid #d6e0ea;background:#fff;border-radius:16px;padding:12px 14px}
+.mission:hover{border-color:var(--blau);background:#f5fafd}
+.mission .ico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:#e4f1f7}
+.mission b{display:block;color:var(--tief)}
+.mission small{color:var(--grau)}
+.mission .st{font-size:1.1rem;letter-spacing:2px;color:var(--gelb);white-space:nowrap}
+.menue-links{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:4px 0 10px}
+.menue-links a,.link-knopf{color:var(--blau);font-weight:600;background:none;border:0;padding:0;text-decoration:underline}
+.copy{font-size:.7rem;color:var(--grau);margin:12px 0 0}
+.hilfe-liste{margin:0 0 6px;padding-left:18px;font-size:.93rem}
+.hilfe-liste li{margin:7px 0}
+.hilfe-liste b{color:var(--tief)}
+.zurueck{display:inline-block;color:var(--blau);font-weight:600;margin-top:12px}
+.knopf{display:block;width:100%;border:0;border-radius:999px;padding:13px 18px;background:var(--blau);color:#fff;font-weight:700;margin-top:10px;text-align:center}
+.knopf:hover{background:#00668f}
+.knopf.leise{background:#eef3f7;color:var(--tief)}
+.knopf.leise:hover{background:#e1eaf1}
+.als-link{text-decoration:none}
+.knopfreihe{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.urteil{font:700 2rem/1.1 "Kalam",cursive;margin-bottom:6px;color:var(--tief)}
+.urteil.ok{color:var(--ok)} .urteil.ko{color:var(--ko)}
+.wahl{margin:0 0 4px;color:var(--grau);font-size:.92rem}
+.wahl:empty{display:none}
+.loesung{font-weight:600;color:var(--tief);margin:0 0 8px}
+.erkl{background:#f3f6f9;border-radius:12px;padding:10px 12px;margin:0}
+.erkl b{display:block;color:var(--blau);font-size:.8rem;margin-bottom:2px}
+.witz{font:700 1.08rem/1.35 "Kalam",cursive;color:#7a4c0b;margin:12px 0 0}
+.sterne{font-size:2.4rem;letter-spacing:6px;color:var(--gelb);margin:4px 0 8px}
+.zus-titel{margin:12px 0 6px;font-size:1rem;color:var(--tief)}
+.zus{max-height:min(40vh,360px);overflow:auto;border:2px solid #e3e9ef;border-radius:14px;padding:4px 10px;background:#fbfdfe;-webkit-user-select:text;user-select:text;touch-action:pan-y}
+.zus .e{padding:9px 0;border-bottom:1px solid #e3e9ef;font-size:.88rem}
+.zus .e:last-child{border-bottom:0}
+.zus .e b{color:var(--tief)}
+.zus .e .r{color:var(--ok);font-weight:600}
+.zus .e .f{color:var(--ko);font-weight:600}
+.zus .e .x{color:var(--grau);display:block;margin-top:2px}
+.ladebalken{height:10px;border-radius:9px;background:#e3e9ef;overflow:hidden}
+.ladebalken i{display:block;height:100%;width:40%;background:var(--blau);border-radius:9px;animation:lade 1.2s ease-in-out infinite alternate}
+@keyframes lade{from{transform:translateX(-20%)}to{transform:translateX(170%)}}
+
+@media (max-width:600px){
+  .antworten{grid-template-columns:1fr}
+  .auftrag{top:calc(64px + env(safe-area-inset-top));padding:9px 40px 8px 12px}
+  .auftrag .frage{font-size:.88rem}
+  .antworten li{font-size:.8rem;padding:4px 7px}
+  .karte h1{font-size:2.1rem}
+  .karte{padding:20px 16px 16px}
+  .hud-oben{gap:6px;left:8px;right:8px}
+  .punkte,.zeit{min-width:54px;padding:6px 8px}
+  .status{padding:6px 10px}
+  .knopfreihe{grid-template-columns:1fr}
+}

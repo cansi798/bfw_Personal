@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<script>try{if(localStorage.getItem('pe26_ok')!=='1'){location.replace('../../index.html');}}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#003366">
+<title>Nordstern Racing · Spielwelt Personalwesen</title>
+<link rel="icon" type="image/png" href="../../assets/img/waybuild_akademie.png">
+<link rel="stylesheet" href="rennen.css">
+</head>
+<body>
+<canvas id="welt" aria-label="Rennstrecke Nordstern Racing"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="aus">
+  <div class="leiste links">
+    <div class="tafel platz"><b id="hPlatz">4</b><small id="hVon">von 6</small></div>
+    <div class="tafel runde"><small>Runde</small><b id="hRunde">1 / 3</b></div>
+  </div>
+  <div class="leiste rechts">
+    <div class="tafel zeiten"><div><small>Zeit</small><b id="hZeit">0,0 s</b></div><div><small>Runde</small><b id="hRZeit">0,0 s</b></div></div>
+    <div class="tafel punkte"><b id="hPunkte">0</b><small>Punkte</small></div>
+    <button class="rund" id="btnTon" aria-label="Ton an oder aus">♪</button>
+    <button class="rund" id="btnReset" aria-label="Auto zurück auf die Strecke setzen">↺</button>
+    <button class="rund" id="btnPause" aria-label="Pause">II</button>
+  </div>
+  <canvas id="karte" width="150" height="150" aria-hidden="true"></canvas>
+
+  <div id="frage" class="panel versteckt" aria-live="polite">
+    <div class="f-kopf"><span id="fNr">Frage-Tor 1 von 10</span><span id="fDist" class="f-dist">noch 400 m</span></div>
+    <div class="f-text" id="fText"></div>
+    <div class="f-ant" id="fAnt"></div>
+    <div class="f-tipp" id="fTipp">Fahren Sie durch das Tor mit der richtigen Antwort. Antippen oder Taste 1 bis 4 wählt die Spur automatisch.</div>
+  </div>
+
+  <div id="info" class="panel versteckt" aria-live="polite">
+    <button class="zu" id="infoZu" aria-label="Erklärung schließen">×</button>
+    <div class="urteil" id="iUrteil"></div>
+    <div class="loesung" id="iLoesung"></div>
+    <div class="erkl" id="iErkl"></div>
+    <div class="witz" id="iWitz"></div>
+  </div>
+
+  <div id="funk" class="versteckt"><b id="funkName"></b><span id="funkText"></span></div>
+  <div id="knall" class="versteckt"></div>
+  <div id="banner" class="versteckt"></div>
+  <div id="hinweis" class="versteckt"></div>
+
+  <div id="ampel" class="versteckt"><i></i><i></i><i></i><i class="gruen"></i></div>
+
+  <div id="tacho" class="tafel">
+    <div class="kmh"><b id="hKmh">0</b><small>km/h</small></div>
+    <div class="nitro"><i id="hNitro"></i><span>NITRO</span></div>
+    <div class="drift" id="hDrift"></div>
+  </div>
+
+  <div id="radio"><span class="sender">Radio</span><div class="band"><span id="radioText"></span></div></div>
+
+  <div id="touch" aria-hidden="true">
+    <div class="t-links">
+      <button class="tk" id="tLinks">◀</button>
+      <button class="tk" id="tRechts">▶</button>
+    </div>
+    <div class="t-rechts">
+      <button class="tk klein nitroK" id="tNitro">NITRO</button>
+      <button class="tk klein" id="tBremse">BREMSE</button>
+      <button class="tk gas" id="tGas">GAS</button>
+    </div>
+  </div>
+</div>
+
+<!-- Startmenü -->
+<div class="ebene" id="eMenue">
+  <div class="karte breit">
+    <img src="../../assets/img/waybuild_akademie.png" alt="Waybuild Akademie" class="logo">
+    <h1>Nordstern Racing</h1>
+    <p class="leise">Drei Runden rund um Norderstedt gegen fünf Rivalen aus der Personalabteilung. Fahren Sie durch das Frage-Tor mit der richtigen Antwort, dann gibt es Nitro und Punkte.</p>
+    <label class="feld">Unterrichtstag
+      <select id="selTag"></select>
+    </label>
+    <div class="sterneZeile" id="mSterne"></div>
+    <div class="optionen">
+      <label class="schalter"><input type="checkbox" id="optLern"><span></span><b>Lernmodus</b><small>Vor jedem Tor läuft das Spiel in Zeitlupe. Nach jeder Antwort pausiert das Rennen, bis Sie auf Weiter drücken.</small></label>
+      <label class="schalter"><input type="checkbox" id="optHilfe"><span></span><b>Lenkhilfe</b><small>Das Auto bleibt von allein auf der Strecke, solange Sie nicht selbst lenken.</small></label>
+      <label class="schalter"><input type="checkbox" id="optGas"><span></span><b>Automatisch Gas geben</b><small>Praktisch am Handy. Bremse und Nitro bleiben bei Ihnen.</small></label>
+      <label class="schalter nurTouch"><input type="checkbox" id="optNeigen"><span></span><b>Lenken durch Neigen</b><small>Handy quer halten und neigen. Die Pfeiltasten gehen weiterhin.</small></label>
+    </div>
+    <button class="knopf gross" id="btnStart">Rennen starten</button>
+    <div class="zeile">
+      <button class="knopf leise" id="btnHilfe">Hilfe und Steuerung</button>
+      <a class="knopf leise" id="lnkLern" href="../../index.html">Zur Lernseite</a>
+    </div>
+    <p class="fuss-text">© 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de</p>
+  </div>
+</div>
+
+<!-- Hilfe -->
+<div class="ebene versteckt" id="eHilfe">
+  <div class="karte breit">
+    <h2>So wird gespielt</h2>
+    <ul class="hilfe">
+      <li><b>Ziel</b> Drei Runden fahren und dabei möglichst viele Frage-Tore richtig durchfahren. Etwa zehn Tore pro Rennen.</li>
+      <li><b>Frage-Tore</b> Kurz vor einem Tor erscheint oben die Frage mit den Antworten A bis D. Die Fahrbahn teilt sich in vier farbige Spuren. Fahren Sie durch das Tor der richtigen Antwort. Richtig gibt Nitro und Punkte, falsch bremst Sie kurz aus. Danach sehen Sie die Lösung mit Erklärung.</li>
+      <li><b>Spurwunsch</b> Tippen Sie eine Antwort an oder drücken Sie 1 bis 4. Das Auto wechselt dann von allein auf diese Spur.</li>
+      <li><b>Tastatur</b> Pfeiltasten oder WASD fahren und lenken. Leertaste driftet. Umschalt oder N zündet Nitro. R setzt das Auto zurück auf die Strecke. P oder Esc pausiert.</li>
+      <li><b>Handy</b> Links lenken, rechts Gas, Bremse und Nitro. Bremse plus Lenken bei Tempo ergibt einen Drift. Im Menü gibt es Lenkhilfe, automatisches Gas und Lenken durch Neigen.</li>
+      <li><b>Drift</b> Driften füllt Nitro auf und bringt Punkte. Rammen ist erlaubt, kostet aber Tempo.</li>
+      <li><b>Sterne</b> Drei Sterne ab 85 Prozent richtig und Platz 1 bis 3. Zwei Sterne ab 60 Prozent richtig und Platz 1 bis 5. Ein Stern für jedes beendete Rennen.</li>
+    </ul>
+    <button class="knopf" id="btnHilfeZu">Verstanden</button>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="ebene versteckt" id="ePause">
+  <div class="karte">
+    <h2>Pause</h2>
+    <button class="knopf" id="btnWeiterfahren">Weiterfahren</button>
+    <button class="knopf leise" id="btnNeustart">Rennen neu starten</button>
+    <button class="knopf leise" id="btnPauseHilfe">Hilfe und Steuerung</button>
+    <button class="knopf leise" id="btnZumMenue">Zum Menü</button>
+    <a class="knopf leise" id="lnkLern2" href="../../index.html">Zur Lernseite</a>
+  </div>
+</div>
+
+<!-- Lernmodus Erklärung -->
+<div class="ebene versteckt" id="eErkl">
+  <div class="karte">
+    <div class="urteil" id="eUrteil"></div>
+    <p class="frage-klein" id="eFrage"></p>
+    <div class="loesung" id="eLoesung"></div>
+    <div class="erkl" id="eErklText"></div>
+    <p class="witz" id="eWitz"></p>
+    <button class="knopf" id="btnErklWeiter">Weiter</button>
+  </div>
+</div>
+
+<!-- Ergebnis -->
+<div class="ebene versteckt" id="eErgebnis">
+  <div class="karte breit">
+    <h2 id="rTitel">Zieleinlauf</h2>
+    <div class="sterne" id="rSterne"></div>
+    <div class="werte" id="rWerte"></div>
+    <table class="rangliste" id="rListe"></table>
+    <h3>Alle Fragen mit Lösung</h3>
+    <ol class="rueck" id="rFragen"></ol>
+    <div class="zeile">
+      <button class="knopf" id="btnNochmal">Noch einmal</button>
+      <button class="knopf leise" id="btnErgMenue">Zum Menü</button>
+      <a class="knopf leise" id="lnkLern3" href="../../index.html">Zur Lernseite</a>
+    </div>
+  </div>
+</div>
+
+<!-- Kein WebGL -->
+<div class="ebene versteckt" id="eKeinGL">
+  <div class="karte">
+    <h2>3D geht hier leider nicht</h2>
+    <p>Ihr Browser oder Gerät unterstützt kein WebGL. Die 2D-Version der Spielwelt funktioniert trotzdem.</p>
+    <a class="knopf" href="../stadt2d/index.html">Zur 2D-Version</a>
+    <a class="knopf leise" href="../../index.html">Zur Lernseite</a>
+  </div>
+</div>
+
+<div id="laden" class="ebene"><div class="karte"><h2>Strecke wird gebaut</h2><p class="leise">Einen Moment bitte, die Leitplanken werden poliert.</p></div></div>
+
+<script src="../daten.js"></script>
+<script src="../humor.js"></script>
+<script type="module" src="rennen.js"></script>
+</body>
+</html>
