@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#003366">
 <title>Spielwelt Nordstern City · Personalwesen M-023</title>
 <link rel="icon" type="image/png" href="../assets/img/waybuild_akademie.png">
+<link rel="stylesheet" href="kacheln.css">
 <style>
 @font-face{font-family:"Kalam";font-weight:700;font-display:swap;src:url(../assets/fonts/kalam-latin-700-normal.woff2) format("woff2")}
 @font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(../assets/fonts/inter-latin-400-normal.woff2) format("woff2")}
@@ -28,75 +29,41 @@ header p{margin:0;max-width:640px;color:#cfe3ee}
 .tagwahl{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .tagwahl label{font-weight:600}
 .tagwahl select{padding:10px 12px;border-radius:12px;border:0;font:inherit;min-width:min(420px,100%)}
-.spiele{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
-.spiel{background:#fff;border:1px solid var(--linie);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
-.bild{height:150px;position:relative;overflow:hidden}
-.bild.stadt{background:linear-gradient(160deg,#7fb069 0,#5e9a4e 60%,#43484e 60%)}
-.bild.rennen{background:linear-gradient(170deg,#ffb347 0,#ff7e5f 45%,#2b2d42 45%)}
-.bild span{position:absolute;left:18px;bottom:12px;font:700 2.1rem/1 "Kalam",cursive;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.45)}
-.bild i{position:absolute;right:16px;top:12px;font-style:normal;font-size:3rem}
-.inhalt{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
-.inhalt p{margin:0;color:var(--grau)}
-.mission{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px 14px;border:2px solid var(--linie);border-radius:14px;text-decoration:none;color:var(--tinte)}
-.mission:hover{border-color:var(--blau)}
-.mission b{display:block;color:var(--tief)}
-.mission small{color:var(--grau)}
-.st{color:#d99a00;letter-spacing:2px;white-space:nowrap;font-size:1.05rem}
 .hinweis{background:#fff;border:1px solid var(--linie);border-radius:16px;padding:14px 18px;margin:18px 0;color:var(--grau);font-size:.92rem}
+.auswahl{background:#fff;border:1px solid var(--linie);border-radius:20px;margin-top:6px}
 footer{color:var(--grau);font-size:.8rem;padding:10px 0 30px}
-@media (max-width:760px){.spiele{grid-template-columns:1fr} header h1{font-size:2.5rem}}
+@media (max-width:760px){header h1{font-size:2.5rem}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <div class="top"><img src="../assets/img/waybuild_akademie.png" alt="Waybuild Akademie"><a id="zurueck" href="../index.html">Zur Lernseite</a></div>
   <h1>Spielwelt Nordstern City</h1>
-  <p>Die Themen des Tages spielerisch lernen und üben. Mit Action im Comic-Stil, Radio Nordstern und einem Augenzwinkern für den Arbeitsalltag in der Personalabteilung.</p>
+  <p>Die Themen des Tages spielerisch lernen und üben. Wählen Sie ein Spiel und darunter die Spielart. Mit Action im Comic-Stil, Laufsteg-Show und einem Augenzwinkern für den Arbeitsalltag in der Personalabteilung.</p>
   <div class="tagwahl"><label for="tag">Unterrichtstag</label><select id="tag"></select></div>
 </div></header>
 <main class="wrap">
-  <div class="spiele">
-    <section class="spiel">
-      <div class="bild stadt"><span>Nordstern City 3D</span><i aria-hidden="true">🚲</i></div>
-      <div class="inhalt">
-        <p>Offene Stadt mit dem Nordstern-Lastenrad. Gebäude wie Personalabteilung, IHK, Arbeitsgericht und Betriebsrat, Verkehr zum Rammen und drei Missionen zum Tagesthema.</p>
-        <div id="stadtMissionen"></div>
-      </div>
-    </section>
-    <section class="spiel">
-      <div class="bild rennen"><span>Nordstern Racing</span><i aria-hidden="true">🏁</i></div>
-      <div class="inhalt">
-        <p>Rennen gegen Herrn Brandt im Dienstwagen und andere Gegner. Fragen erscheinen als Tore auf der Strecke. Die richtige Spur gibt Nitro, die falsche bremst.</p>
-        <div id="rennMissionen"></div>
-      </div>
-    </section>
-  </div>
-  <div class="hinweis">Läuft im Browser am Computer und am Handy, ohne Installation. Am Computer mit Tastatur, am Handy mit den Tasten auf dem Bildschirm. Ältere Geräte ohne 3D-Grafik nutzen die <a id="lnk2d" href="stadt2d/index.html">einfache 2D-Version der Stadt</a>.</div>
+  <section class="auswahl" aria-label="Spiele zur Auswahl"><div id="kacheln"></div></section>
+  <div class="hinweis">Läuft im Browser am Computer und am Handy, ohne Installation. Am Computer mit Tastatur, am Handy mit den Tasten auf dem Bildschirm. Ältere Geräte ohne 3D-Grafik nutzen bei Nordstern City die Stadt in 2D. Das Atelier braucht keine 3D-Grafik.</div>
 </main>
 <footer><div class="wrap">© 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · <a href="https://www.waybuild.de" target="_blank" rel="noopener">www.waybuild.de</a></div></footer>
 <script src="daten.js"></script>
+<script src="kacheln.js"></script>
 <script>
 (function () {
-  var S = window.SPIEL, sel = document.getElementById("tag"), store = {};
-  try { store = JSON.parse(localStorage.getItem("pe26_spiel") || "{}") || {}; } catch (e) {}
-  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var S = window.SPIEL, sel = document.getElementById("tag");
   S.days.forEach(function (d) { var o = document.createElement("option"); o.value = d.nr; o.textContent = "Tag " + d.nr + ", " + d.title + " (" + d.date + ")"; sel.appendChild(o); });
   var p = new URLSearchParams(location.search), t = parseInt(p.get("tag"), 10);
   if (!t) { var now = new Date(); now.setHours(0, 0, 0, 0); S.days.forEach(function (d) { var x = d.date.split("."); if (new Date(+x[2], +x[1] - 1, +x[0]) <= now) t = d.nr; }); }
   sel.value = String(t || 1);
-  function stars(k) { var n = store[k] || 0; return "★★★".slice(0, n) + "☆☆☆".slice(0, 3 - n); }
-  function row(href, titel, text, key) { return '<a class="mission" href="' + href + '"><span><b>' + esc(titel) + "</b><small>" + esc(text) + '</small></span><span class="st">' + stars(key) + "</span></a>"; }
   function render() {
-    var n = sel.value, d = S.days.filter(function (x) { return String(x.nr) === n; })[0];
+    var n = sel.value;
     document.getElementById("zurueck").href = "../index.html#/tag/" + n;
-    document.getElementById("lnk2d").href = "stadt2d/index.html?tag=" + n;
-    var h = row("stadt/index.html?tag=" + n + "&m=lernen&start=1", "Lern-Tour", "Lernpunkte anfahren und die Kernthemen lesen", n + "-lernen") +
-      row("stadt/index.html?tag=" + n + "&m=kurier&start=1", "Kurier-Mission", "Fragen beantworten, zur richtigen Antwort fahren", n + "-kurier");
-    if (d.sortier && d.sortier.length) h += row("stadt/index.html?tag=" + n + "&m=logistik&start=1", "Lastenrad-Logistik", "Pakete mit Aussagen ins richtige Depot bringen", n + "-logistik");
-    document.getElementById("stadtMissionen").innerHTML = h;
-    document.getElementById("rennMissionen").innerHTML = row("rennen/index.html?tag=" + n, "Rennen zum Tag " + n, d.title + ", 3 Runden, etwa 10 Frage-Tore", n + "-rennen");
+    document.getElementById("kacheln").innerHTML = window.SPIELKACHELN(n, "");
+    try { history.replaceState(null, "", "?tag=" + n); } catch (e) {}
   }
   sel.onchange = render; render();
+  window.addEventListener("pageshow", function (e) { if (e.persisted) render(); });
 })();
 </script>
 </body>

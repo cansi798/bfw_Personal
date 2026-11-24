@@ -208,7 +208,7 @@
     h += '<h2 class="abschnitt-titel">Für den ganzen Kurs</h2><div class="kursmaterial">' +
       '<div class="spalte">' + eintrag("kurs-trainer", "trainer", K.kursfiles.trainer, "Quiz-Trainer und Probeklausur", "Alle Fragen aller Tage üben, Probeklausur mit 30 Fragen") + "</div>" +
       '<div class="spalte">' + eintrag("kurs-gesamt", "skript", K.kursfiles.gesamt, "Gesamtskript aller Tage", "Alle Skripte in einer PDF mit Glossar") + "</div>" +
-      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spielwelt Nordstern City", "3D-Stadt mit Missionen und Rennspiel zu jedem Tag") + "</div></div>";
+      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spielwelt Nordstern City", "3D-Stadt, Rennspiel und Mode-Atelier zu jedem Tag") + "</div></div>";
     app.innerHTML = rahmen(0, h);
   }
 
@@ -249,15 +249,8 @@
 
     h += '<div class="zweispaltig' + (d.sessions.length === 1 ? " eins" : "") + '">' + d.sessions.map(function (s) { return sessionBlock(d, s); }).join("") + "</div>";
 
-    var sp = {}; try { sp = JSON.parse(get("pe26_spiel") || "{}") || {}; } catch (e) { sp = {}; }
-    var stern = function (k) { var n = sp[d.nr + "-" + k] || 0; return "★★★".slice(0, n) + "☆☆☆".slice(0, 3 - n); };
-    var sl = function (k) { return k === "rennen" ? "spiel/rennen/index.html?tag=" + d.nr : "spiel/stadt/index.html?tag=" + d.nr + "&m=" + k + "&start=1"; };
-    h += '<section class="spalte spielwelt" id="ziel-spiel"><header><h2>Spielwelt Nordstern City</h2><span>Themen des Tages in 3D lernen und üben, in der Stadt und auf der Rennstrecke</span></header><div class="freigitter"><div>' +
-      eintrag(d.nr + "-sp-lernen", "trainer", sl("lernen"), "Lern-Tour", "Lernpunkte anfahren und Kernthemen lesen <span class=\"st\">" + stern("lernen") + "</span>") +
-      eintrag(d.nr + "-sp-kurier", "trainer", sl("kurier"), "Kurier-Mission", "Fragen beantworten, zur richtigen Antwort fahren <span class=\"st\">" + stern("kurier") + "</span>") + "</div><div>" +
-      eintrag(d.nr + "-sp-logistik", "trainer", sl("logistik"), "Lastenrad-Logistik", "Pakete mit Aussagen ins richtige Depot bringen <span class=\"st\">" + stern("logistik") + "</span>") +
-      eintrag(d.nr + "-sp-rennen", "trainer", sl("rennen"), "Nordstern Racing", "Rennen mit Frage-Toren, richtige Spur gibt Nitro <span class=\"st\">" + stern("rennen") + "</span>") +
-      '<div class="spielinfo">3D im Browser, mit Action im Comic-Stil und Radio Nordstern. <a href="spiel/index.html?tag=' + d.nr + '" target="_blank" rel="noopener">Alle Spiele</a>, <a href="spiel/stadt2d/index.html?tag=' + d.nr + '" target="_blank" rel="noopener">2D-Version für ältere Geräte</a></div></div></div></section>';
+    h += '<section class="spalte spielwelt" id="ziel-spiel"><header><h2>Spiele zum Tag</h2><span>Erst das Spiel wählen, dann die Spielart. Alle Spiele üben die Themen von Tag ' + d.nr + '</span></header>' +
+      (window.SPIELKACHELN ? window.SPIELKACHELN(d.nr, "spiel/") : '<p class="spielinfo"><a href="spiel/index.html?tag=' + d.nr + '" target="_blank" rel="noopener">Zur Spielwelt</a></p>') + "</section>";
     var u = d.ueb, m = d.ueb_meta;
     h += '<section class="spalte frei" id="ziel-frei"><header><h2>Freiwillig üben</h2><span class="marke">freiwillig</span><span>zur Vertiefung und zum Üben zu Hause</span></header><div class="freigitter">';
     h += '<div>' + eintrag(d.nr + "-heft", "heft", d.heft.file, d.klausur ? "Aufgabenheft Klausurtraining" : "Aufgabenheft des Tages",
