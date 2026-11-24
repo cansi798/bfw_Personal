@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<script>try{if(localStorage.getItem('pe26_ok')!=='1'){location.replace('../../index.html');}}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#24323a">
+<title>Nordstern Leben · Spielwelt Personalwesen</title>
+<link rel="icon" type="image/png" href="../../assets/img/waybuild_akademie.png">
+<link rel="stylesheet" href="leben.css">
+</head>
+<body>
+<canvas id="welt" aria-label="Haus von Nordstern Leben. Tippen Sie auf Möbel und Personen."></canvas>
+
+<div id="hud" hidden>
+  <div class="oben">
+    <div class="tafel person"><b id="hName"></b><small id="hJob"></small><span id="hLaune" class="laune"></span></div>
+    <div class="tafel geld"><small>Kontostand</small><b id="hGeld"></b></div>
+    <div class="tafel uhr"><b id="hUhr"></b>
+      <div class="tempo" role="group" aria-label="Spieltempo">
+        <button type="button" data-tempo="0" aria-label="Pause">II</button><button type="button" data-tempo="1" aria-label="Normal">▶</button><button type="button" data-tempo="2" aria-label="Schnell">▶▶</button><button type="button" data-tempo="3" aria-label="Sehr schnell">▶▶▶</button>
+      </div>
+    </div>
+    <div class="rechts">
+      <button type="button" id="btnZiele" class="kn">Ziele <span id="hZiele"></span></button>
+      <button type="button" id="btnKaufen" class="kn gold">Kaufen</button>
+      <button type="button" id="hThema" class="kn" aria-label="Thema der Fragen wählen"></button>
+      <button type="button" id="btnTon" class="rund" aria-label="Ton an oder aus">♪</button>
+      <a id="zurueck" class="rund" href="../index.html" aria-label="Zur Spielauswahl">✕</a>
+    </div>
+  </div>
+  <div id="hTut" class="tut" hidden></div>
+  <div class="bed">
+    <button type="button" id="btnBed" class="bedkopf">Bedürfnisse</button>
+    <div class="bedliste">
+      <div class="zeile"><span>Energie</span><i id="b-energie" class="balken"></i></div>
+      <div class="zeile"><span>Hunger</span><i id="b-hunger" class="balken"></i></div>
+      <div class="zeile"><span>Hygiene</span><i id="b-hygiene" class="balken"></i></div>
+      <div class="zeile"><span>Spaß</span><i id="b-spass" class="balken"></i></div>
+      <div class="zeile"><span>Soziales</span><i id="b-sozial" class="balken"></i></div>
+      <div class="werte"><span>Wissen <b id="hWissen">0</b></span><span>Karriere <b id="hKarriere">0</b></span></div>
+      <div id="hBez" class="bez" hidden></div>
+    </div>
+  </div>
+  <div class="kamera"><button type="button" id="btnMinus" aria-label="Herauszoomen">−</button><button type="button" id="btnPlus" aria-label="Hineinzoomen">+</button><button type="button" id="btnDrehen" aria-label="Ansicht drehen">⟳</button></div>
+</div>
+
+<div id="menue" class="menue" hidden></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="dialog" class="dialog"></div>
+<div id="start" class="start" hidden></div>
+<noscript><p style="padding:2rem;font-family:sans-serif">Bitte JavaScript aktivieren.</p></noscript>
+<div class="copy">© 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · <a href="https://www.waybuild.de" target="_blank" rel="noopener">www.waybuild.de</a></div>
+<script src="../daten.js"></script>
+<script src="../humor.js"></script>
+<script type="module" src="leben.js"></script>
+</body>
+</html>

@@ -208,7 +208,7 @@
     h += '<h2 class="abschnitt-titel">Für den ganzen Kurs</h2><div class="kursmaterial">' +
       '<div class="spalte">' + eintrag("kurs-trainer", "trainer", K.kursfiles.trainer, "Quiz-Trainer und Probeklausur", "Alle Fragen aller Tage üben, Probeklausur mit 30 Fragen") + "</div>" +
       '<div class="spalte">' + eintrag("kurs-gesamt", "skript", K.kursfiles.gesamt, "Gesamtskript aller Tage", "Alle Skripte in einer PDF mit Glossar") + "</div>" +
-      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spielwelt Nordstern City", "3D-Stadt, Rennspiel und Mode-Atelier zu jedem Tag") + "</div></div>";
+      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spielwelt Nordstern City", "3D-Stadt, Rennspiel und Lebenssimulation zu jedem Tag") + "</div></div>";
     app.innerHTML = rahmen(0, h);
   }
 

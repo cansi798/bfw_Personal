@@ -14,8 +14,9 @@
       '<g transform="translate(96 72)"><rect x="0" y="6" width="48" height="16" rx="5" fill="#ffd66b"/><rect x="10" y="0" width="26" height="10" rx="3" fill="#ffd66b"/><circle cx="11" cy="23" r="5" fill="#222"/><circle cx="37" cy="23" r="5" fill="#222"/></g></svg>',
     atelier: '<svg viewBox="0 0 240 110" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="skLicht" cx="50%" cy="0%" r="80%"><stop offset="0" stop-color="#ffe9d6" stop-opacity=".55"/><stop offset="1" stop-color="#ffe9d6" stop-opacity="0"/></radialGradient></defs>' +
       '<rect width="240" height="110" fill="url(#skLicht)"/><path d="M84 110 L104 84 L136 84 L156 110 Z" fill="rgba(255,240,228,.85)"/>' +
-      '<path d="M120 14 Q120 8 126 9 Q131 11 127 17 L120 22 L96 38 L144 38 L120 22" fill="none" stroke="#e8c76a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<path d="M106 38 L134 38 L131 56 L146 92 L94 92 L109 56 Z" fill="#f3d6c6"/><path d="M109 56 L131 56" stroke="#4a1d3f" stroke-width="2"/>' +
+      '<path d="M86 58 L120 30 L154 58 Z" fill="#f3d6c6"/><rect x="92" y="58" width="56" height="34" fill="#fff6ee"/><rect x="113" y="70" width="14" height="22" rx="2" fill="#7b2338"/><rect x="98" y="64" width="10" height="10" fill="#a9d6ef"/><rect x="132" y="64" width="10" height="10" fill="#a9d6ef"/>' +
+      '<path d="M120 22 C114 12 102 16 108 25 L120 34 L132 25 C138 16 126 12 120 22 Z" fill="#f39bb0"/>' +
+      '<path d="M176 40 Q176 35 181 36 Q185 38 182 43 L176 47 L160 58 L192 58 L176 47" fill="none" stroke="#e8c76a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
       '<g fill="#e8c76a"><circle cx="40" cy="30" r="2.5"/><circle cx="60" cy="60" r="1.8"/><circle cx="196" cy="34" r="2.5"/><circle cx="206" cy="70" r="1.8"/></g></svg>'
   };
 
@@ -32,7 +33,8 @@
         { k: "rennen", titel: "Rennen starten", text: "3 Runden und etwa 10 Frage-Tore, die richtige Spur gibt Nitro", href: basis + "rennen/index.html" + t + "&start=1" },
         { k: null, titel: "Rennmenü mit Lernmodus", text: "Erst in Ruhe üben, dann Gas geben", href: basis + "rennen/index.html" + t }
       ] },
-      { id: "atelier", titel: "Atelier Nordstern", text: "Mode trifft Personalwesen, mit Laufsteg-Show und strenger Jury", farbe: "#4a1d3f", modi: [
+      { id: "atelier", titel: "Nordstern Leben", text: "Lebenssimulation mit Haus, Job, Liebe, Hochzeit und Familie, dazu das Mode-Atelier", farbe: "#4a1d3f", modi: [
+        { k: "leben", titel: "Lebenssimulation", text: "Arbeiten und lernen mit Fragen des Tages, Möbel kaufen, verlieben, heiraten, Kinder", href: basis + "leben/index.html" + t },
         { k: "styling", titel: "Styling-Studio", text: "10 Fragen, jede richtige Antwort bringt ein Teil, dann geht es auf den Laufsteg", href: basis + "atelier/index.html" + t + "&m=styling" },
         { k: "lookbook", titel: "Lookbook", text: "Die Kernbegriffe als Modemagazin, danach der Stilcheck", href: basis + "atelier/index.html" + t + "&m=lookbook" },
         { k: "boutique", titel: "Boutique", text: "Etiketten an die richtige Kleiderstange hängen", href: basis + "atelier/index.html" + t + "&m=boutique" }
