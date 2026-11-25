@@ -94,6 +94,11 @@ ul.clean{list-style:none;padding:0;margin:0}
 .q.ok .verdict{color:var(--ok)} .q.ko .verdict{color:var(--bad)}
 .result{display:none;background:#fff;border:2px solid var(--blue);border-radius:16px;padding:20px 22px;margin:18px 0}
 .result.show{display:block}
+.rbanner{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;background:#fff7e0;border:2px solid #e0b43a;border-radius:14px;padding:12px 16px;margin:16px 0 0}
+.rbanner[hidden]{display:none}
+.rbanner .btn{margin-left:auto}
+.wdh{margin:12px 0 6px}
+.wdh .btn[hidden]{display:none}
 .result .big{font-size:34px;font-weight:700;color:var(--dark);line-height:1.1}
 .result .note{font-family:'Kalam',cursive;font-size:26px;color:var(--blue);font-weight:700}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
@@ -143,16 +148,18 @@ ul.apa li{padding-left:2.2em;text-indent:-2.2em;margin:0 0 6px;font-size:13.5px;
  <button class="btn ghost" id="btnMix">Neu mischen</button>
 </div></div>
 <main class="wrap">
+ <div class="rbanner noprint" id="rbanner" hidden></div>
  <section class="result" id="res" aria-live="polite">
-  <div class="muted small">Ihr Ergebnis</div>
+  <div class="muted small" id="rtitel">Ihr Ergebnis</div>
   <div class="grid3">
    <div><div class="k">Richtig beantwortet</div><div class="big" id="rpts"></div></div>
    <div><div class="k">Anteil</div><div class="big" id="rpct"></div></div>
    <div><div class="k">IHK-Notenschlüssel</div><div class="note" id="rnote"></div></div>
   </div>
   <p class="small muted" id="rerr"></p>
+  <div class="actions noprint wdh"><button class="btn" type="button" id="btnWdh" hidden>Falsche Fragen noch einmal üben</button><button class="btn ghost" type="button" id="btnAlle" hidden>Wieder alle Fragen</button></div>
   <div class="scroll"><table class="key"><tr><th>Note</th><th>Bezeichnung</th><th>Anteil richtig</th></tr><tr data-n="1"><td>1</td><td>sehr gut</td><td>92 bis 100 %</td></tr><tr data-n="2"><td>2</td><td>gut</td><td>81 bis unter 92 %</td></tr><tr data-n="3"><td>3</td><td>befriedigend</td><td>67 bis unter 81 %</td></tr><tr data-n="4"><td>4</td><td>ausreichend</td><td>50 bis unter 67 %</td></tr><tr data-n="5"><td>5</td><td>mangelhaft</td><td>30 bis unter 50 %</td></tr><tr data-n="6"><td>6</td><td>ungenügend</td><td>unter 30 %</td></tr></table></div>
-  <p class="small">Unten sehen Sie bei jeder Frage die richtigen Antworten und eine Erklärung. Mit „Nur Fehler zeigen“ blenden Sie die richtig gelösten Fragen aus.</p>
+  <p class="small">Unten sehen Sie bei jeder Frage die richtigen Antworten und eine Erklärung. Mit „Nur Fehler zeigen“ blenden Sie die richtig gelösten Fragen aus. Mit „noch einmal üben“ startet eine neue Runde nur mit den falschen Fragen, so oft Sie möchten.</p>
  </section>
  <div id="qs"></div>
  <div class="actions noprint"><button class="btn" id="btnEval2">Auswerten</button><button class="btn ghost" id="btnMix2">Neu mischen</button></div>
@@ -167,10 +174,12 @@ const L = ['a','b','c','d','e','f'];
 const NOTEN = [[92,1,'sehr gut'],[81,2,'gut'],[67,3,'befriedigend'],[50,4,'ausreichend'],[30,5,'mangelhaft'],[0,6,'ungenügend']];
 function note(p){for(const n of NOTEN){if(p>=n[0])return n;}return NOTEN[5];}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-let perms=[], sel=[], evaluated=false;
+let perms=[], sel=[], evaluated=false, act=[], runde=0;
 const list=document.getElementById('qs');
 function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
-function build(){
+function build(ids){
+  act=ids&&ids.length?ids.slice():D.q.map((_,i)=>i);
+  if(!ids)runde=0;
   perms=D.q.map(q=>shuffle(q.o.map((_,i)=>i)));
   done=[];
   sel=D.q.map(()=>new Set());
@@ -181,9 +190,13 @@ function build(){
   document.getElementById('btnErr').textContent='Nur Fehler zeigen';
   document.getElementById('btnEval').disabled=false;document.getElementById('btnEval2').disabled=false;
   list.innerHTML='';
-  D.q.forEach((q,qi)=>{
+  const rb=document.getElementById('rbanner');
+  if(runde>0){rb.hidden=false;rb.innerHTML='';rb.appendChild(el('b','','Wiederholungsrunde '+runde));rb.appendChild(el('span','',' Hier stehen nur die '+act.length+' Fragen, die zuletzt falsch oder unvollständig waren. Die Antworten sind neu gemischt.'));const ab=el('button','btn ghost','Wieder alle '+D.q.length+' Fragen');ab.type='button';ab.onclick=alleFragen;rb.appendChild(ab);}
+  else rb.hidden=true;
+  act.forEach((qi,pos)=>{
+    const q=D.q[qi];
     const c=el('div','q');c.id='q'+(qi+1);
-    const n=el('div','qn','FRAGE '+(qi+1)+' VON '+D.q.length);
+    const n=el('div','qn','FRAGE '+(pos+1)+' VON '+act.length+(runde>0?' · NR. '+(qi+1)+' IM QUIZ':''));
     const t=el('div','qt',q.q);
     const h=el('span','q1o2','(1 oder 2 Antworten richtig)');t.appendChild(h);
     c.appendChild(n);c.appendChild(t);
@@ -200,7 +213,8 @@ function build(){
     if(q.e){ex.appendChild(el('span','elbl','Erklärung'));ex.appendChild(el('span','',q.e));}
     c.appendChild(ex);
     const qb=el('button','btn qcheck','Antwort prüfen');qb.type='button';
-    qb.addEventListener('click',()=>{if(sel[qi].size===0){alert('Bitte zuerst mindestens eine Antwort ankreuzen.');return;}markQ(qi);progress();});
+    qb.addEventListener('click',()=>{if(sel[qi].size===0){alert('Bitte zuerst mindestens eine Antwort ankreuzen.');return;}markQ(qi);progress();
+      if(mode==='sofort'&&!evaluated&&act.every(i=>done[i]!==undefined))setTimeout(evaluate,350);});
     c.appendChild(qb);
     list.appendChild(c);
   });
@@ -226,27 +240,35 @@ function markQ(qi){
   return right;
 }
 function progress(){
-  const a=sel.filter(s=>s.size>0).length;
-  if(mode==='sofort'){const g=done.filter(x=>x!==undefined).length, r=done.filter(x=>x===true).length;
-    document.getElementById('plbl').textContent='Geprüft '+g+' von '+D.q.length+', davon richtig '+r;
-    document.getElementById('pfill').style.width=(g/D.q.length*100)+'%';return;}
-  document.getElementById('plbl').textContent='Beantwortet '+a+' von '+D.q.length;
-  document.getElementById('pfill').style.width=(a/D.q.length*100)+'%';
+  const N=act.length, vor=runde>0?'Wiederholung '+runde+', ':'';
+  const a=act.filter(i=>sel[i].size>0).length;
+  if(mode==='sofort'){const g=act.filter(i=>done[i]!==undefined).length, r=act.filter(i=>done[i]===true).length;
+    document.getElementById('plbl').textContent=vor+'Geprüft '+g+' von '+N+', davon richtig '+r;
+    document.getElementById('pfill').style.width=(g/N*100)+'%';return;}
+  document.getElementById('plbl').textContent=vor+'Beantwortet '+a+' von '+N;
+  document.getElementById('pfill').style.width=(a/N*100)+'%';
 }
 function evaluate(){
-  const open=D.q.filter((q,qi)=>sel[qi].size===0&&done[qi]===undefined).length;
+  if(evaluated)return;
+  const open=act.filter(qi=>sel[qi].size===0&&done[qi]===undefined).length;
   if(open>0 && !confirm(open+' Fragen sind noch offen. Trotzdem auswerten?'))return;
-  let ok=0;
-  D.q.forEach((q,qi)=>{ const r=(done[qi]!==undefined)?done[qi]:markQ(qi); if(r)ok++; });
+  let ok=0;falsche=[];
+  act.forEach(qi=>{ const r=(done[qi]!==undefined)?done[qi]:markQ(qi); if(r)ok++; else falsche.push(qi); });
+  const N=act.length;
   evaluated=true;
   document.getElementById('btnEval').disabled=true;document.getElementById('btnEval2').disabled=true;
   document.body.classList.add('evald');
-  const p=ok/D.q.length*100;const n=note(p);
-  document.getElementById('rpts').textContent=ok+' von '+D.q.length;
+  const p=ok/N*100;const n=note(p);
+  document.getElementById('rtitel').textContent=runde>0?'Ergebnis der Wiederholungsrunde '+runde:'Ihr Ergebnis';
+  document.getElementById('rpts').textContent=ok+' von '+N;
   document.getElementById('rpct').textContent=p.toFixed(1).replace('.',',')+' %';
   document.getElementById('rnote').textContent='Note '+n[1]+' ('+n[2]+')';
   document.querySelectorAll('#key tr[data-n]').forEach(tr=>tr.classList.toggle('cur',+tr.dataset.n===n[1]));
-  document.getElementById('rerr').textContent=(D.q.length-ok)+' Fragen falsch oder unvollständig';
+  document.getElementById('rerr').textContent=falsche.length?(falsche.length+(falsche.length===1?' Frage ist':' Fragen sind')+' falsch oder unvollständig.'):(runde>0?'Jetzt sitzen alle Fragen, die vorher falsch waren. Sehr gut!':'Alle Fragen richtig. Sehr gut!');
+  const bw=document.getElementById('btnWdh');bw.hidden=!falsche.length;
+  bw.textContent=(falsche.length===1?'Die falsche Frage':'Die '+falsche.length+' falschen Fragen')+' noch einmal üben';
+  document.getElementById('btnAlle').hidden=runde===0;
+  document.getElementById('btnAlle').textContent='Wieder alle '+D.q.length+' Fragen';
   document.getElementById('res').classList.add('show');
   document.getElementById('btnErr').disabled=false;
   document.getElementById('res').scrollIntoView({behavior:'smooth'});
@@ -256,9 +278,18 @@ function toggleErr(){
   const on=document.body.classList.toggle('onlyerr');
   document.getElementById('btnErr').textContent=on?'Alle Fragen zeigen':'Nur Fehler zeigen';
 }
+let falsche=[];
 function reshuffle(){
   if(sel.some(s=>s.size>0)&&!evaluated&&!confirm('Neu mischen löscht alle Antworten. Fortfahren?'))return;
-  build();window.scrollTo({top:0,behavior:'smooth'});
+  build(runde>0?act:null);window.scrollTo({top:0,behavior:'smooth'});
+}
+function wiederholen(){
+  if(!falsche.length)return;
+  runde++;build(falsche);window.scrollTo({top:0,behavior:'smooth'});
+}
+function alleFragen(){
+  if(sel.some(s=>s.size>0)&&!evaluated&&!confirm('Die Antworten dieser Runde gehen verloren. Fortfahren?'))return;
+  build(null);window.scrollTo({top:0,behavior:'smooth'});
 }
 let mode='sofort';
 try{mode=localStorage.getItem('quizmodus')||'sofort';}catch(e){}
@@ -267,7 +298,7 @@ function setMode(m,ask){
   mode=m;try{localStorage.setItem('quizmodus',m);}catch(e){}
   document.body.classList.toggle('sofort',m==='sofort');
   document.querySelectorAll('.mbtn').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.mode===m)));
-  if(ask)build();else progress();
+  if(ask)build(runde>0?act:null);else progress();
 }
 document.querySelectorAll('.mbtn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode,true)));
 document.getElementById('btnEval').onclick=evaluate;
@@ -275,6 +306,8 @@ document.getElementById('btnEval2').onclick=evaluate;
 document.getElementById('btnErr').onclick=toggleErr;
 document.getElementById('btnMix').onclick=reshuffle;
 document.getElementById('btnMix2').onclick=reshuffle;
+document.getElementById('btnWdh').onclick=wiederholen;
+document.getElementById('btnAlle').onclick=alleFragen;
 build();
 setMode(mode,false);
 
