@@ -34,3 +34,18 @@
   .sk-kachel[aria-expanded="true"]::after{display:none}
 }
 @media (prefers-reduced-motion:reduce){.sk-kachel,.sk-unter{transition:none}}
+
+/* Ein Spiel */
+.sk-eins{display:grid;grid-template-columns:minmax(0,1fr);gap:0;margin:16px;border:1.5px solid color-mix(in srgb,var(--sk) 40%,#dfe6ec);border-radius:20px;overflow:hidden;background:#fff}
+.sk-held{display:block;background:var(--sk)}
+.sk-held .sk-bild{display:grid;grid-template-columns:1fr 1fr 1fr;height:150px;background:none}
+.sk-held .sk-bild svg:nth-child(1){background:#4a1d3f}.sk-held .sk-bild svg:nth-child(2){background:#2f7d5b}.sk-held .sk-bild svg:nth-child(3){background:#b4462a}
+.sk-info{padding:18px 20px 16px;display:flex;flex-direction:column;gap:8px}
+.sk-titel{font-size:1.35rem;color:var(--sk)}
+.sk-info p{margin:0;color:#3d4c5a;line-height:1.45}
+.sk-teile{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 14px}
+.sk-teile li{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;border-bottom:1px dashed #e3e8ee;padding-bottom:4px}
+.sk-los.gross{padding:10px 22px;font-size:1rem;text-decoration:none}
+.sk-klein{font-size:.8rem!important;color:#6a7886!important}
+.sk-klein a{color:var(--sk)}
+@media (max-width:760px){.sk-eins{margin:12px}.sk-held .sk-bild{height:90px;width:auto}.sk-teile{grid-template-columns:1fr 1fr}}

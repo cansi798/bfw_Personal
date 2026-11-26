@@ -132,11 +132,11 @@
         '</span><span class="ntext"><b>' + esc(d.kurz) + '</b><small>' + esc(d.weekday.slice(0, 2)) + " " + shortDate(d.date) + "</small></span></a></summary><div class=\"unterpunkte\">";
       var ziele = [];
       d.sessions.forEach(function (s) { ziele.push(["s" + s.nr, d.klausur ? "Ganztag" : (s.nr === 1 ? "Vormittag" : "Nachmittag")]); });
-      ziele.push(["spiel", "Spielwelt"]); ziele.push(["frei", "Freiwillig üben"]);
+      ziele.push(["spiel", "Spiel"]); ziele.push(["frei", "Freiwillig üben"]);
       ziele.forEach(function (z) { h += '<a href="#/tag/' + d.nr + '" data-ziel="' + z[0] + '">' + z[1] + "</a>"; });
       h += "</div></details></li>";
     });
-    h += '</ol><div class="nav-kurs"><a href="spiel/index.html" target="_blank" rel="noopener">Spielwelt Nordstern City</a><a href="' + K.kursfiles.trainer + '" target="_blank" rel="noopener">Quiz-Trainer</a><a href="' + K.kursfiles.gesamt + '" target="_blank" rel="noopener">Gesamtskript</a></div></nav>';
+    h += '</ol><div class="nav-kurs"><a href="spiel/index.html" target="_blank" rel="noopener">Spiel Nordstern Leben</a><a href="' + K.kursfiles.trainer + '" target="_blank" rel="noopener">Quiz-Trainer</a><a href="' + K.kursfiles.gesamt + '" target="_blank" rel="noopener">Gesamtskript</a></div></nav>';
     return h;
   }
   function rahmen(aktiv, inhalt) {
@@ -208,7 +208,7 @@
     h += '<h2 class="abschnitt-titel">Für den ganzen Kurs</h2><div class="kursmaterial">' +
       '<div class="spalte">' + eintrag("kurs-trainer", "trainer", K.kursfiles.trainer, "Quiz-Trainer und Probeklausur", "Alle Fragen aller Tage üben, Probeklausur mit 30 Fragen") + "</div>" +
       '<div class="spalte">' + eintrag("kurs-gesamt", "skript", K.kursfiles.gesamt, "Gesamtskript aller Tage", "Alle Skripte in einer PDF mit Glossar") + "</div>" +
-      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spielwelt Nordstern City", "3D-Stadt, Rennspiel und Lebenssimulation zu jedem Tag") + "</div></div>";
+      '<div class="spalte">' + eintrag("kurs-spiel", "trainer", "spiel/index.html", "Spiel Nordstern Leben", "Eine offene Welt zu jedem Tag") + "</div></div>";
     app.innerHTML = rahmen(0, h);
   }
 
@@ -249,7 +249,7 @@
 
     h += '<div class="zweispaltig' + (d.sessions.length === 1 ? " eins" : "") + '">' + d.sessions.map(function (s) { return sessionBlock(d, s); }).join("") + "</div>";
 
-    h += '<section class="spalte spielwelt" id="ziel-spiel"><header><h2>Spiele zum Tag</h2><span>Erst das Spiel wählen, dann die Spielart. Alle Spiele üben die Themen von Tag ' + d.nr + '</span></header>' +
+    h += '<section class="spalte spielwelt" id="ziel-spiel"><header><h2>Spiel zum Tag</h2><span>Nordstern Leben übt die Themen von Tag ' + d.nr + '</span></header>' +
       (window.SPIELKACHELN ? window.SPIELKACHELN(d.nr, "spiel/") : '<p class="spielinfo"><a href="spiel/index.html?tag=' + d.nr + '" target="_blank" rel="noopener">Zur Spielwelt</a></p>') + "</section>";
     var u = d.ueb, m = d.ueb_meta;
     h += '<section class="spalte frei" id="ziel-frei"><header><h2>Freiwillig üben</h2><span class="marke">freiwillig</span><span>zur Vertiefung und zum Üben zu Hause</span></header><div class="freigitter">';

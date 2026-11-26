@@ -45,44 +45,19 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function sterne(n) { return "★★★".slice(0, n) + "☆☆☆".slice(0, 3 - n); }
 
-  /* nr = Tag, basis = Pfad zum Ordner spiel/ */
+  /* nr = Tag, basis = Pfad zum Ordner spiel/. Seit dem Umbau gibt es nur noch ein Spiel, Nordstern Leben als offene Welt. */
+  var BEREICHE = [["leben", "Leben und Beruf"], ["rennen", "Rennstrecke"], ["kurier", "Kurierjob"], ["styling", "Laufsteg"]];
   window.SPIELKACHELN = function (nr, basis) {
     var st = {}; try { st = JSON.parse(lesen("pe26_spiel", "{}")) || {}; } catch (e) { st = {}; }
-    var offen = lesen("pe26_spielwahl", "");
-    var h = '<div class="sk">';
-    katalog(nr, basis).forEach(function (g) {
-      var mit = g.modi.filter(function (m) { return m.k; });
-      var summe = mit.reduce(function (a, m) { return a + (st[nr + "-" + m.k] || 0); }, 0);
-      var auf = offen === g.id;
-      h += '<button class="sk-kachel" type="button" style="--sk:' + g.farbe + '" data-sk-id="' + g.id + '" aria-expanded="' + auf + '" aria-controls="sk-p-' + g.id + '">' +
-        '<span class="sk-bild">' + BILD[g.id] + "</span>" +
-        '<span class="sk-text"><b>' + esc(g.titel) + "</b><small>" + esc(g.text) + '</small><span class="sk-fuss"><span class="sk-sum">' + summe + " von " + mit.length * 3 + ' Sternen</span><span class="sk-auf">' + (auf ? "Schließen" : "Spielarten zeigen") + "</span></span></span></button>";
-      h += '<div class="sk-panel" id="sk-p-' + g.id + '" style="--sk:' + g.farbe + '"' + (auf ? "" : " hidden") + ">" +
-        g.modi.map(function (m) {
-          var n = m.k ? (st[nr + "-" + m.k] || 0) : -1;
-          return '<a class="sk-unter" href="' + m.href + '" target="_blank" rel="noopener"><b>' + esc(m.titel) + "</b><small>" + esc(m.text) + '</small><span class="sk-fuss">' +
-            (n >= 0 ? '<span class="sk-st" aria-label="' + n + ' von 3 Sternen">' + sterne(n) + "</span>" : '<span class="sk-ohne">ohne Sterne</span>') + '<span class="sk-los">Spielen</span></span></a>';
-        }).join("") + "</div>";
-    });
-    h += '<p class="sk-hinweis"' + (offen ? " hidden" : "") + ">Tippen Sie auf ein Spiel. Darunter erscheinen die Spielarten zur Auswahl.</p></div>";
-    return h;
+    var summe = 0; BEREICHE.forEach(function (b) { summe += st[nr + "-" + b[0]] || 0; });
+    var href = basis + "leben/index.html?tag=" + nr;
+    return '<div class="sk-eins" style="--sk:#4a1d3f">' +
+      '<a class="sk-held" href="' + href + '" target="_blank" rel="noopener"><span class="sk-bild">' + BILD.atelier + BILD.stadt + BILD.rennen + '</span></a>' +
+      '<div class="sk-info"><b class="sk-titel">Nordstern Leben</b>' +
+      '<p>Eine offene Welt zum Thema des Tages. Arbeiten, lernen, einkaufen, Auto fahren, Rennen fahren, einen Laden eröffnen, verlieben, heiraten, Familie gründen und mit dem Hund Gassi gehen. Geld und Fortschritt gibt es für richtige Antworten, immer mit Lösung und Erklärung.</p>' +
+      '<ul class="sk-teile">' + BEREICHE.map(function (b) { var n = st[nr + "-" + b[0]] || 0; return "<li><span>" + esc(b[1]) + '</span><span class="sk-st" aria-label="' + n + ' von 3 Sternen">' + sterne(n) + "</span></li>"; }).join("") + "</ul>" +
+      '<div class="sk-fuss"><span class="sk-sum">' + summe + " von " + BEREICHE.length * 3 + ' Sternen für Tag ' + nr + '</span><a class="sk-los gross" href="' + href + '" target="_blank" rel="noopener">Spiel starten</a></div>' +
+      '<p class="sk-klein">Steuerung mit Maus oder Finger, Pfeiltasten oder WASD. Für ältere Geräte ohne 3D-Grafik gibt es die <a href="' + basis + 'stadt2d/index.html?tag=' + nr + '" target="_blank" rel="noopener">einfache Version in 2D</a>.</p></div></div>';
   };
-  window.SPIELKACHELN_KLICK = function (btn) {
-    var box = btn.closest(".sk"); if (!box) return;
-    var id = btn.getAttribute("data-sk-id"), auf = btn.getAttribute("aria-expanded") !== "true";
-    box.querySelectorAll(".sk-kachel").forEach(function (b) {
-      var mein = b === btn && auf;
-      b.setAttribute("aria-expanded", mein ? "true" : "false");
-      b.querySelector(".sk-auf").textContent = mein ? "Schließen" : "Spielarten zeigen";
-      var p = document.getElementById(b.getAttribute("aria-controls")); if (p) p.hidden = !mein;
-    });
-    var hw = box.querySelector(".sk-hinweis"); if (hw) hw.hidden = auf;
-    try { localStorage.setItem("pe26_spielwahl", auf ? id : ""); } catch (e) {}
-    if (auf && window.matchMedia("(max-width:760px)").matches) {
-      var p = document.getElementById("sk-p-" + id); if (p) setTimeout(function () { p.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 30);
-    }
-  };
-  document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest(".sk-kachel"); if (b) window.SPIELKACHELN_KLICK(b);
-  });
+  window.SPIELKACHELN_KLICK = function () {};
 })();
