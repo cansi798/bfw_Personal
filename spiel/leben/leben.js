@@ -1,6 +1,13 @@
 /* Nordstern Leben · Lebenssimulation mit den Themen des Tages
    © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
 import { THREE, IS_TOUCH, erstelleWelt, setzeKamera, baueMoebel, baueFigur, bewegeFigur, baueBaby, baueStern, baueStorch, konfetti } from "./welt.js";
+/* ERW-INHALT: Module für Kleidung, Laden, Ereignisse, Atelier und Alltag */
+import * as KLEIDUNG from "./kleidung.js";
+import * as EREIGNISSE from "./ereignisse.js";
+import * as LADEN from "./laden.js";
+import * as ATELIER from "./atelier.js";
+import * as ALLTAG from "./alltag.js";
+/* /ERW-INHALT */
 
 const S = window.SPIEL || { days: [] }, H = window.HUMOR || {};
 const $ = (id) => document.getElementById(id);
@@ -49,11 +56,16 @@ const PLATZ = {
   kuehl: [7.6, 5.55, 0, [7.6, 6.5]], herd: [8.6, 5.5, 0, [8.6, 6.5]], theke: [9.8, 5.5, 0, [9.8, 6.5]], tisch: [11.6, 8.0, 0, [10.75, 8.9]],
   tuer: [7.0, 10.15, 0, [7.0, 10.95]], briefkasten: [9.0, 12.2, 0, [9.0, 11.55]], bogen: [4.0, 12.4, 0, [4.0, 13.2]]
 };
+/* ERW-INHALT: Kennenlernen mit sechs Personen, drei Frauen und drei Männer, mit Beruf und Hobby. Die ids alex, robin und sam bleiben für alte Spielstände. */
 const KANDIDATEN = [
-  { id: "alex", name: "Alex Sommer", rolle: "Lohnbuchhaltung", text: "liebt Excel-Tabellen und Sonnenuntergänge", look: { haut: "#e2b18b", haar: "kurz", haarfarbe: "#5a3a22", oben: "#1f3557", hose: "#3d3d4a" } },
-  { id: "robin", name: "Robin Kaya", rolle: "Betriebsrat", text: "fordert Mitbestimmung auch beim Abendessen", look: { haut: "#c68b5e", haar: "locken", haarfarbe: "#2b1b12", oben: "#c9503b", hose: "#2f3b4a" } },
-  { id: "sam", name: "Sam Petrow", rolle: "Ausbildungsleitung", text: "erklärt alles zweimal, aber mit Herz", look: { haut: "#f3d3bd", haar: "lang", haarfarbe: "#d8b26e", oben: "#6f8f7b", hose: "#4a3d33", rock: true } }
+  { id: "alex", name: "Alex Sommer", rolle: "Lohnbuchhaltung", beruf: "Lohnbuchhalter", hobby: "Sonnenuntergänge fotografieren", text: "liebt Excel-Tabellen und Sonnenuntergänge", look: { haut: "#e2b18b", haar: "kurz", haarfarbe: "#5a3a22", oben: "#1f3557", hose: "#3d3d4a", koerper: "mann", bart: "kurz" } },
+  { id: "robin", name: "Robin Kaya", rolle: "Betriebsrat", beruf: "Betriebsrätin", hobby: "Tango tanzen", text: "fordert Mitbestimmung auch beim Abendessen", look: { haut: "#c68b5e", haar: "locken", haarfarbe: "#2b1b12", oben: "#c9503b", hose: "#2f3b4a", koerper: "frau" } },
+  { id: "sam", name: "Sam Petrow", rolle: "Ausbildungsleitung", beruf: "Ausbildungsleiterin", hobby: "Brettspiele", text: "erklärt alles zweimal, aber mit Herz", look: { haut: "#f3d3bd", haar: "lang", haarfarbe: "#d8b26e", oben: "#6f8f7b", hose: "#4a3d33", rock: true, koerper: "frau" } },
+  { id: "kai", name: "Kai Lindner", rolle: "Arbeitssicherheit", beruf: "Fachkraft für Arbeitssicherheit", hobby: "Bouldern", text: "trägt sogar beim Grillen Sicherheitsschuhe", look: { haut: "#8d5a3b", haar: "kurz", haarfarbe: "#2b1b12", oben: "#e0a72e", hose: "#24323a", koerper: "mann", bart: "voll" } },
+  { id: "mats", name: "Mats Okafor", rolle: "Recruiting", beruf: "Recruiter", hobby: "Kochen", text: "findet für jede Stelle die passende Person, nur nicht für sich", look: { haut: "#5c3a26", haar: "kurz", haarfarbe: "#2b1b12", oben: "#6fb7e0", hose: "#3d3d4a", koerper: "mann" } },
+  { id: "lina", name: "Lina Hoffmann", rolle: "Personalentwicklung", beruf: "Personalentwicklerin", hobby: "Gärtnern", text: "plant Karrierewege wie andere Urlaubsreisen", look: { haut: "#f3d3bd", haar: "dutt", haarfarbe: "#7a2e2a", oben: "#b07ad8", hose: "#2f3b4a", rock: true, koerper: "frau" } }
 ];
+/* /ERW-INHALT */
 const GAESTE = [
   { name: "Frau Demir", look: { haut: "#c68b5e", haar: "dutt", haarfarbe: "#2b1b12", oben: "#0f5c63", hose: "#24323a", rock: true } },
   { name: "Herr Brandt", look: { haut: "#f3d3bd", haar: "kurz", haarfarbe: "#8c8c8c", oben: "#8a6d4b", hose: "#4a4a4a", brille: true } },
@@ -142,7 +154,7 @@ const personen = {};
 function person(id, look, kind) {
   const f = baueFigur(Object.assign({}, look, { kind })); f.g.userData.ziel = { typ: "person", id }; scene.add(f.g);
   const p = { id, f, ziel: null, weg: [], pose: null, dann: null, aktiv: null, sichtbar: true };
-  personen[id] = p; return p;
+  personen[id] = p; erwPerson(p); /* ERW-INHALT: Kleidung und Wachstum anwenden */ return p;
 }
 function entferne(id) { const p = personen[id]; if (p) { scene.remove(p.f.g); delete personen[id]; } }
 const stern = baueStern(); stern.visible = false; stern.scale.setScalar(1.5); scene.add(stern);
@@ -240,7 +252,7 @@ function zeitVergeht(min, wirkung) {
 }
 const klemm = (v) => Math.max(0, Math.min(100, v));
 function abbau(min) { BED.forEach((b) => { let r = ABBAU[b]; if (b === "sozial" && s.partner && s.partner.verheiratet) r *= 0.6; if (b === "energie" && personen.ich && ich.liegt) r = 0; s.bed[b] = klemm(s.bed[b] - r * min / 60); }); }
-function stimmung() { const w = BED.reduce((a, b) => a + s.bed[b], 0) / BED.length + (s.gekauft.includes("teppich") ? 3 : 0) + (s.gekauft.includes("pflanze") ? 2 : 0); return Math.min(100, w); }
+function stimmung() { const w = BED.reduce((a, b) => a + s.bed[b], 0) / BED.length + (s.gekauft.includes("teppich") ? 3 : 0) + (s.gekauft.includes("pflanze") ? 2 : 0); return Math.max(0, Math.min(100, w + erwStimmung() /* ERW-INHALT: Stimmungsmarker */)); }
 function stimmungText(w) { return w >= 75 ? "Bestens gelaunt" : w >= 55 ? "Zufrieden" : w >= 35 ? "Etwas gereizt" : "Am Ende der Kräfte"; }
 let letzterTag = 0;
 function tagesEreignisse() {
@@ -351,6 +363,7 @@ function aktionenFuer(ziel) {
     else if (ziel.id.startsWith("kind")) { const k = s.kinder[+ziel.id.slice(4)]; if (k) { a.push({ t: "Hausaufgaben helfen", f: () => hausaufgaben(k) }); if (s.gekauft.includes("spielzeug")) a.push({ t: "Spielen", f: () => mitKindSpielen(k) }); else a.push(sperre("Zum Spielen eine Spielzeugkiste kaufen")); } }
     else if (ziel.id === "ich") { a.push({ t: "Lebensziele ansehen", f: zieleZeigen }); a.push({ t: "Stimmung prüfen", f: () => ui.toast(n + " ist " + stimmungText(stimmung()).toLowerCase() + ". Stimmung " + Math.round(stimmung()) + " von 100") }); }
   }
+  erwAktionen(ziel, a); /* ERW-INHALT: zusätzliche Aktionen */
   return a;
 }
 function lernFertig(ok) { if (ok) { s.wissen++; s.gelernt++; ui.toast("Wissen plus 1. Mehr Wissen bringt mehr Lohn", "gut"); } else ui.toast("Diesmal kein Wissenspunkt. Einfach noch einmal lesen"); hud(); }
@@ -398,12 +411,14 @@ function befoerderung() {
 const BEZ_STUFE = (p) => p.verheiratet ? "Verheiratet" : p.verlobt ? "Verlobt" : p.bez >= 60 ? "Verliebt" : p.bez >= 30 ? "Befreundet" : "Bekannt";
 function partnerDa() { if (!s.partner) return false; if (s.partner.verheiratet) return true; const h = stunde(); return h >= 8 && h < 22; }
 function kennenlernen() {
-  const k = dialog(`<p class="dkopf">Nachbarschaft kennenlernen</p><p class="intro">Am Gartenzaun stehen drei Menschen aus der Nachbarschaft, alle arbeiten bei Nordstern. Mit wem möchte ${esc(s.name)} ins Gespräch kommen?</p>
-    <div class="kandidaten">${KANDIDATEN.map((c) => `<button class="kandidat" type="button" data-id="${c.id}"><span class="avatar" style="background:${c.look.oben}">${c.name.split(" ").map((w) => w[0]).join("")}</span><b>${esc(c.name)}</b><small>${esc(c.rolle)}</small><span>${esc(c.text)}</span></button>`).join("")}</div>
+  /* ERW-INHALT: sechs Personen mit Beruf und Hobby, freie Wahl */
+  const k = dialog(`<p class="dkopf">Nachbarschaft kennenlernen</p><p class="intro">Am Gartenzaun stehen sechs Menschen aus der Nachbarschaft, alle arbeiten bei Nordstern. Mit wem möchte ${esc(s.name)} ins Gespräch kommen? Die anderen können später gute Freunde werden.</p>
+    <div class="kandidaten">${KANDIDATEN.map((c) => `<button class="kandidat" type="button" data-id="${c.id}"><span class="avatar" style="background:${c.look.oben}">${c.name.split(" ").map((w) => w[0]).join("")}</span><b>${esc(c.name)}</b><small>${esc(c.beruf || c.rolle)}, mag ${esc(c.hobby || "Kaffee")}</small><span>${esc(c.text)}</span></button>`).join("")}</div>
     <div class="reihe"><button class="btn leise" type="button" id="dAbbr">Später</button></div>`);
   k.querySelectorAll(".kandidat").forEach((b) => b.onclick = () => {
     const c = KANDIDATEN.find((x) => x.id === b.dataset.id);
     s.partner = { id: c.id, name: c.name, rolle: c.rolle, look: c.look, bez: 10, verlobt: false, verheiratet: false };
+    s.freunde = (s.freunde || []).filter((f) => f.id !== c.id); initInhalt(s); /* ERW-INHALT */
     dialogZu(); partnerErscheint(true); klang("ziel");
     ui.toast(c.name + " aus der " + c.rolle + " sagt Hallo. Tippen Sie auf " + c.name.split(" ")[0] + ", um zu reden.");
     speichern(); pruefeZiele();
@@ -671,6 +686,7 @@ function schleife(jetzt) {
     if (!dialogOffen && tempo > 0) {
       let mps = TEMPO[tempo]; if (ich.aktiv && ich.aktiv.schnell) mps = 45;
       const min = dt * mps; s.zeit += min; abbau(min); tagesEreignisse();
+      erwTick(min); /* ERW-INHALT: Kleidung, Ereignisse, Laden und Alltag */
       const a = ich.aktiv;
       if (a) { if (a.wirkung) BED.forEach((b) => { if (a.wirkung[b]) s.bed[b] = klemm(s.bed[b] + a.wirkung[b] * min / 60); }); a.rest -= min;
         if (a.rest <= 0 || (a.bis && a.bis(s))) { const ende = a.ende; aufstehen(ich); ich.aufstehPunkt = null; if (ende) ende(); pruefeZiele(); } }
@@ -717,11 +733,13 @@ function startbild() {
   START_MOEBEL.forEach((id) => stelleAuf(id)); vorschau(); zeichne();
 }
 function los(neu) {
+  initInhalt(s); /* ERW-INHALT: fehlende Felder für neue Inhalte setzen */
   $("start").hidden = true; $("hud").hidden = false;
   pools(); START_MOEBEL.concat(s.gekauft).forEach((id) => stelleAuf(id));
   ich = person("ich", s.look, false); ich.f.g.position.set(neu ? 7 : 6, 0, neu ? 11.5 : 7);
   if (s.partner) partnerErscheint(false);
   familieAktualisieren(); hud(); licht(); speichern();
+  erwLos(neu); /* ERW-INHALT */
   if (neu) info("Willkommen in Nordstern", `<p>${esc(s.name)} zieht in ein kleines Haus in Nordstern City und beginnt mit einem Praktikum in der Personalabteilung der Nordstern Fahrradwerke.</p>
     <p><b>So geht es.</b> Tippen Sie auf Möbel, Personen oder den Boden. Über die Haustür geht es zur Arbeit, mit Fragen zum Thema ${esc(day.title)}. Mit dem Geld kaufen Sie Möbel am PC. Achten Sie auf die Bedürfnisse unten links.</p>
     <p class="hinweis">Tipp, im Briefkasten wartet die Nachbarschaft. Vielleicht ist die große Liebe dabei.</p>`, [["Los geht es", () => { geheZu(ich, 7, 9); pruefeZiele(); }]]);
@@ -751,3 +769,108 @@ addEventListener("keydown", (e) => {
 addEventListener("pagehide", speichern);
 groesse(); startbild(); requestAnimationFrame(schleife);
 window.__leben = { stand: () => s, personen, aktionenFuer, zeit: (m) => zeitVergeht(m), geld: (g) => { s.geld += g; hud(); } };
+
+/* ERW-INHALT: Anbindung von Kleidung, Laden, Ereignissen, Atelier und Alltag
+   Kontext für die Module, neue Möbel, neue Lebensziele, Hooks und Testhaken. */
+const ERW = {
+  get s() { return s; }, get ich() { return ich; }, get day() { return day; }, get tag() { return tag; }, get dialogOffen() { return dialogOffen; }, get tempo() { return tempo; },
+  THREE, scene, personen, moebel, KATALOG, PLATZ, ZIELE, STUFEN, BED, IS_TOUCH,
+  esc, pick, mischen, euro, klemm, klang, ui, dialog, dialogZu, info, feedback, frageRunde, sortFrage, lernKarte, naechsteFrage, naechsteKarte, naechsteSort, antwortZaehlen,
+  zeitVergeht, stunde, lebensTag, uhr, hud, speichern, pruefeZiele, stelleAuf, funken, dauerAktion, geheZu, dreheZu, aufstehen, nutzpunkt, partnerDa, kinderGross, alterTage, stimmung, stimmungText, lernFertig
+};
+KLEIDUNG.init(ERW); EREIGNISSE.init(ERW); ATELIER.init(ERW); LADEN.init(ERW); ALLTAG.init(ERW); ALLTAG.setzeKandidaten(KANDIDATEN);
+KATALOG.kleiderschrank = { name: "Kleiderschrank mit Spiegel", preis: 250, text: "Outfits für jeden Anlass, Modeboutique und Laufsteg-Show" };
+PLATZ.kleiderschrank = [0.4, 3.85, Math.PI / 2, [1.35, 3.85]];
+ZIELE.push(
+  { id: "laden1", text: "Einen eigenen Laden eröffnen", lohn: 200, ok: (st) => !!st.laden },
+  { id: "team3", text: "3 Mitarbeitende im eigenen Laden beschäftigen", lohn: 300, ok: (st) => !!st.laden && st.laden.mitarbeiter.length >= 3 },
+  { id: "ladenstufe3", text: "Den eigenen Laden auf Stufe 3 ausbauen", lohn: 400, ok: (st) => !!st.laden && st.laden.stufe >= 3 },
+  { id: "kleidung10", text: "10 neue Kleidungsstücke sammeln", lohn: 200, ok: (st) => !!st.kleidung && KLEIDUNG.neueTeile(st) >= 10 },
+  { id: "ereignis10", text: "10 überraschende Erlebnisse meistern", lohn: 200, ok: (st) => !!st.ereignis && st.ereignis.anzahl >= 10 },
+  { id: "laufsteg", text: "Bei der Laufsteg-Show 7 von 8 Fragen richtig beantworten", lohn: 250, ok: (st) => !!st.atelier && st.atelier.beste >= 7 },
+  { id: "kochen5", text: "Kochen auf Stufe 5 bringen", lohn: 150, ok: (st) => !!st.skills && st.skills.kochen >= 5 },
+  { id: "charisma5", text: "Charisma auf Stufe 5 bringen", lohn: 150, ok: (st) => !!st.skills && st.skills.charisma >= 5 },
+  { id: "freunde3", text: "Drei Freundschaften schließen", lohn: 200, ok: (st) => Array.isArray(st.freunde) && st.freunde.filter((f) => f.bez >= 30).length >= 3 },
+  { id: "urlaub1", text: "Den ersten Urlaub machen", lohn: 100, ok: (st) => !!st.leben && st.leben.letzterUrlaub >= 0 },
+  { id: "zertifikat", text: "Ein Weiterbildungszertifikat erwerben", lohn: 200, ok: (st) => !!st.leben && st.leben.zertifikate.length >= 1 },
+  { id: "eigenheim", text: "Ein Eigenheim abbezahlen", lohn: 500, ok: (st) => !!st.haushalt && st.haushalt.wohnen === "eigen" }
+);
+function initInhalt(st) {
+  if (!st) return;
+  KLEIDUNG.initStand(st); EREIGNISSE.initStand(st); LADEN.initStand(st); ATELIER.initStand(st); ALLTAG.initStand(st);
+}
+function erwPerson(p) { try { KLEIDUNG.person(p); ALLTAG.personHook(p); } catch (e) { console.warn("ERW-INHALT person", e); } }
+function erwStimmung() { return s ? EREIGNISSE.stimmungsBonus() : 0; }
+let erwSchnapp = null;
+function erwChronikPruefen() {
+  const x = { stufe: s.stufe, partner: s.partner ? s.partner.name : "", bez: s.partner ? BEZ_STUFE(s.partner) : "", kinder: s.kinder.length };
+  if (erwSchnapp) {
+    if (x.stufe > erwSchnapp.stufe) EREIGNISSE.chronik(s.name + " wird befördert, jetzt " + STUFEN[x.stufe].name + ".");
+    if (x.partner && x.partner !== erwSchnapp.partner) EREIGNISSE.chronik(s.name + " lernt " + x.partner + " kennen.");
+    if (x.bez !== erwSchnapp.bez && x.partner && (x.bez === "Verliebt" || x.bez === "Verlobt" || x.bez === "Verheiratet")) EREIGNISSE.chronik({ Verliebt: s.name + " hat sich in " + x.partner + " verliebt.", Verlobt: s.name + " und " + x.partner + " haben sich verlobt.", Verheiratet: s.name + " und " + x.partner + " haben geheiratet." }[x.bez]);
+    if (x.kinder > erwSchnapp.kinder) EREIGNISSE.chronik(s.kinder[x.kinder - 1].name + " kommt auf die Welt.");
+  }
+  erwSchnapp = x;
+}
+let erwUhr = 0;
+function erwTick(min) {
+  if (!s) return;
+  try { KLEIDUNG.tick(min); ALLTAG.tick(min); LADEN.tick(min); EREIGNISSE.tick(min); erwUhr += min; if (erwUhr > 10) { erwUhr = 0; erwChronikPruefen(); } } catch (e) { console.warn("ERW-INHALT tick", e); }
+}
+function erwLos(neu) {
+  erwSchnapp = null; erwChronikPruefen();
+  if (neu) { EREIGNISSE.chronik(s.name + " zieht in ein kleines Haus in Nordstern City."); setTimeout(() => ui.toast("Tipp, im Möbelhaus gibt es einen Kleiderschrank mit Spiegel. Damit wählen Sie Outfits für jeden Anlass."), 9000); }
+  EREIGNISSE.markerZeigen();
+}
+const REZEPTE = ["Lohnsteuer-Lasagne", "Bruttosuppe mit Nettoeinlage", "Probezeit-Pfannkuchen", "Tarifvertrags-Tiramisu", "Ficus-Salat ohne Ficus", "Betriebsrats-Bolognese"];
+function erwAktionen(ziel, a) {
+  if (!s) return;
+  KLEIDUNG.aktionen(ziel, a);
+  if (ziel.typ === "moebel") {
+    const id = ziel.id;
+    if (id === "kleiderschrank") {
+      a.push({ t: "Vor dem Spiegel Smalltalk üben", f: () => dauerAktion(ich, { x: 1.35, z: 3.85, blick: [0.3, 3.85], pose: "reden", dauer: 30, wirkung: { spass: 6 }, text: "übt vor dem Spiegel",
+        ende: () => { EREIGNISSE.skill("charisma", 0.5); ui.toast(s.name + " übt den perfekten Händedruck mit dem Spiegelbild. Charisma steigt.", "gut"); } }) });
+      a.push({ t: "Modeatelier, Laufsteg-Show", f: ATELIER.menue });
+    }
+    if (id === "pc") {
+      a.forEach((x) => { if (x.t && x.t.indexOf("Homeoffice") === 0) { const f0 = x.f; x.f = () => { KLEIDUNG.anlassFuer("arbeit", { aktiv: () => ich.pose === "tippen", min: 60, max: 300 }); f0(); }; } });
+      a.push({ t: "Modeboutique online", f: KLEIDUNG.boutique });
+      a.push({ t: "Modeatelier online", f: ATELIER.menue });
+      a.push({ t: s.laden ? "Laden-Zentrale, " + s.laden.name : "Selbstständigkeit", f: LADEN.zentrale });
+      a.push({ t: "Leben organisieren", f: erwOrganisieren });
+    }
+    if (id === "tuer") a.forEach((x) => { if (x.t && x.t.indexOf("Zur Arbeit") === 0) { const f0 = x.f; x.f = () => { KLEIDUNG.anlassFuer("arbeit", { aktiv: () => !ich.f.g.visible, min: 120, max: 700 }); f0(); }; } });
+    if (id === "herd") {
+      const k = EREIGNISSE.stufe("kochen"), np = nutzpunkt("herd");
+      a.push({ t: "Neues Rezept ausprobieren", f: () => dauerAktion(ich, { x: np.x, z: np.z, blick: [8.6, 5.5], pose: "essen", dauer: 60, wirkung: { hunger: 100 + k * 8, spass: 10 + k * 3 }, text: "probiert ein neues Rezept",
+        ende: () => { EREIGNISSE.skill("kochen", 0.5); ui.toast(s.name + " kocht " + pick(REZEPTE) + "." + (k >= 3 ? " Ein Gedicht!" : " Gar nicht schlecht."), "gut"); } }) });
+    }
+    if (id === "sofa" || id === "briefkasten") a.push({ t: "Nordstern Chic lesen", f: ATELIER.lookbook });
+    if (id === "briefkasten") a.push({ t: "Freundschaften pflegen", f: ALLTAG.freunde });
+  } else if (ziel.typ === "person" && ziel.id === "ich") {
+    a.push({ t: "Lebenschronik ansehen", f: EREIGNISSE.chronikZeigen });
+  }
+}
+function erwOrganisieren() {
+  const liste = [["Urlaub planen", ALLTAG.urlaub], ["Stellenangebote ansehen", ALLTAG.stellen], ["Weiterbildungskurs belegen, 150 €", ALLTAG.weiterbildung], ["Haushaltsbuch", ALLTAG.haushaltsbuch], ["Freundschaften pflegen", ALLTAG.freunde]];
+  const k = dialog(`<p class="dkopf">Leben organisieren</p><p class="intro">Am Schreibtisch planen Sie Urlaub, Karriere, Weiterbildung und Finanzen.</p><div class="ld-menue">${liste.map((x, i) => `<button type="button" class="btn" data-i="${i}">${esc(x[0])}</button>`).join("")}</div><div class="reihe"><button class="btn leise" type="button" id="orZu">Schließen</button></div>`);
+  k.querySelectorAll("[data-i]").forEach((b) => b.onclick = () => { dialogZu(); liste[+b.dataset.i][1](); });
+  $("orZu").onclick = dialogZu;
+}
+if ($("btnChronik")) $("btnChronik").onclick = () => { if (s && !dialogOffen) EREIGNISSE.chronikZeigen(); };
+Object.assign(window.__leben, {
+  erw: {
+    ctx: ERW, kleidung: KLEIDUNG, laden: LADEN, ereignisse: EREIGNISSE, atelier: ATELIER, alltag: ALLTAG, initInhalt: () => initInhalt(s),
+    geld: (g) => { s.geld += g; hud(); }, setze: (pfad, wert) => { const t = pfad.split("."); let o = s; while (t.length > 1) o = o[t.shift()]; o[t[0]] = wert; hud(); },
+    kleiderschrank: (anlass) => KLEIDUNG.kleiderschrank(anlass), boutique: () => KLEIDUNG.boutique(), outfit: (anlass, teile) => { Object.assign(s.kleidung.outfits[anlass], teile); KLEIDUNG.setzeAnlass(anlass); },
+    kaufeMoebel: (id) => { if (!s.gekauft.includes(id)) { s.gekauft.push(id); stelleAuf(id, false); } },
+    eroeffne: (typ, name, farbe) => LADEN.eroeffne(typ, name, farbe), schicht: (n) => LADEN.schicht(n), einstellen: () => LADEN.einstellen(), zentrale: () => LADEN.zentrale(),
+    ereignis: (id) => EREIGNISSE.starte(id), ereignisIds: () => EREIGNISSE.alleEreignisse().map((e) => ({ id: e.id, lern: !!e.lern, moeglich: !e.bed || !!e.bed(s) })),
+    chronik: () => EREIGNISSE.chronikZeigen(), laufsteg: () => ATELIER.laufsteg(), lookbook: () => ATELIER.lookbook(), inventur: (eigen) => ATELIER.inventur(eigen),
+    urlaub: () => ALLTAG.urlaub(), stellen: () => ALLTAG.stellen(), weiterbildung: () => ALLTAG.weiterbildung(), haushaltsbuch: () => ALLTAG.haushaltsbuch(), freunde: () => ALLTAG.freunde(),
+    aktionen: (typ, id) => aktionenFuer({ typ, id }).map((x) => x.t || ("gesperrt " + x.gesperrt)), klick: (typ, id, text) => { const x = aktionenFuer({ typ, id }).find((y) => y.t && y.t.indexOf(text) === 0); if (x) { aufstehen(ich); x.f(); return true; } return false; },
+    tick: (min) => erwTick(min), dialogOffen: () => dialogOffen, tempo: (t) => { tempo = t; hud(); }
+  }
+});
+/* /ERW-INHALT */

@@ -160,3 +160,113 @@ body.bed-zu .bedliste{display:none}
   .startkarte h1{font-size:2rem}
 }
 @media (prefers-reduced-motion:reduce){.toast,.balken::after{transition:none}}
+
+/* ERW-INHALT: Kleiderschrank, Boutique, Laden, Ereignisse, Chronik, Atelier und Alltag */
+.marker{display:block;font-size:.7rem;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.marker[hidden]{display:none}
+.marker.plus{color:var(--gruen)}.marker.minus{color:var(--rot)}
+.kl-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.kl-tabs .schnitt{min-height:40px}
+.kl-tabs.klein .schnitt{padding:6px 11px;font-size:.84rem;min-height:36px}
+.kl-tabs .schnitt.traegt{box-shadow:inset 0 -3px 0 var(--gold)}
+.kl-wrap{display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start}
+.kl-buehne{position:relative;height:330px;border-radius:18px;background:radial-gradient(circle at 50% 30%,#fff 0,#f6efe4 60%,#eadfcf 100%);overflow:hidden;position:sticky;top:0}
+.kl-canvas{display:block;width:100%;height:100%}
+.kl-seite{min-width:0}
+.kl-teile{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
+.kl-teil{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;border:1.5px solid var(--linie);background:#fff;border-radius:14px;padding:9px 11px;cursor:pointer;min-height:52px}
+.kl-teil b{font-size:.9rem}.kl-teil small{color:var(--grau);font-size:.76rem;line-height:1.3}
+.kl-teil[aria-pressed="true"]{border-color:var(--petrol);background:#eef6f4;box-shadow:inset 0 0 0 1.5px var(--petrol)}
+.kl-teil.zu{opacity:.55;cursor:default;background:#f7f3ec}
+.kl-teil:hover:not(:disabled){border-color:var(--petrol)}
+.kl-tipp{font-style:normal;font-size:.66rem;font-weight:700;color:#7a5a00;background:#fff3c4;border-radius:999px;padding:1px 7px;margin-left:4px;vertical-align:1px}
+.kl-flabel{margin:12px 0 6px;font-weight:700;font-size:.86rem}
+.kl-farben .farbe{width:34px;height:34px}
+.kl-shop .artikel.probe{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.kl-knoepfe{display:flex;gap:6px;flex-wrap:wrap}
+.er-art{display:inline-block;margin:0 0 8px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#7a5a00;background:#fff3c4;border-radius:999px;padding:3px 10px}
+.er-text{font-size:1.05rem;line-height:1.55;margin:0 0 14px}
+.dialog.ereignis .karte{border-top:6px solid var(--gold)}
+.ld-menue{display:grid;gap:8px;margin:6px 0}
+.ld-menue .btn{justify-content:flex-start;min-height:46px}
+.ld-menue .aus{padding:6px 12px;font-size:.84rem;color:var(--grau)}
+.ld-arten .kandidat.an{border-color:var(--petrol);box-shadow:inset 0 0 0 1.5px var(--petrol);background:#eef6f4}
+.ld-arten .avatar{font-size:.8rem}
+.ld-lohn{font-weight:700;color:var(--petrol);font-size:.84rem}
+.ld-kasse{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:4px 0 12px}
+.ld-kasse div{background:#fff;border:1px solid var(--linie);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column}
+.ld-kasse small{color:var(--grau);font-size:.76rem}.ld-kasse b{font-size:1.15rem}
+.minus{color:var(--rot)}.plus{color:#2f7a45}
+.ld-tab{width:100%;border-collapse:collapse;font-size:.86rem;margin:6px 0 10px;background:#fff;border-radius:12px;overflow:hidden}
+.ld-tab th,.ld-tab td{padding:7px 9px;border-bottom:1px solid var(--linie);text-align:left}
+.ld-tab th{background:#f6efe4;font-size:.78rem;color:var(--grau)}
+.ld-warn{background:#fbe8e3;border-left:4px solid var(--rot);border-radius:0 12px 12px 0;padding:8px 12px}
+.ld-team{display:grid;gap:8px}
+.ld-ma{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid var(--linie);border-radius:14px;padding:8px 10px}
+.ld-ma small{display:block;color:var(--grau);font-size:.78rem}
+.ld-ma .zeile{margin-top:4px}
+.ld-ma .avatar{margin:0;font-size:.8rem}
+.ld-liste{margin:0 0 10px;padding-left:20px}
+.hh-tarife{display:grid;gap:8px;margin:8px 0}
+.hh-tarife .schnitt{font-size:.82rem}
+.ch-kopf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.ch-box{background:#fff;border:1px solid var(--linie);border-radius:14px;padding:10px 12px;font-size:.88rem}
+.ch-box p{margin:4px 0}
+.ch-skill{display:grid;grid-template-columns:72px 1fr 56px;gap:8px;align-items:center;margin-top:6px}
+.ch-skill small{color:var(--grau)}
+.ch-marker{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.ch-marker li{font-size:.76rem;font-weight:700;border-radius:999px;padding:2px 9px;background:#e8f3ea;color:#2f7a45}
+.ch-marker li.minus{background:#fbe8e3;color:#a23a24}
+.ch-titel{font:italic 700 1.15rem var(--serif);color:var(--petrol);margin:14px 0 6px}
+.chronik{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.chronik li{display:grid;grid-template-columns:96px 1fr;gap:10px;background:#fff;border:1px solid var(--linie);border-radius:10px;padding:6px 10px;font-size:.86rem}
+.chronik small{color:var(--grau)}
+/* Atelier */
+.at-punkte{display:flex;gap:5px;margin:0 0 8px}
+.at-punkte i{width:22px;height:8px;border-radius:5px;background:#eadfcf}
+.at-punkte i.ok{background:var(--gruen)}.at-punkte i.nein{background:var(--rot)}.at-punkte i.jetzt{background:var(--gold)}
+.at-jury{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start;margin-top:10px;background:#fff;border-radius:14px;padding:8px 10px;border:1px solid var(--linie);font-size:.9rem}
+.at-jury b{display:block;font-size:.8rem;color:var(--petrol)}
+.at-kopf{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:.82rem}
+.at-kopf.fd{background:var(--petrol)}.at-kopf.hb{background:#8a6d4b}.at-kopf.pp{background:#d9a42b}
+.at-gewinn{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px;margin-top:6px}
+.at-show{position:relative}
+.at-steg{height:340px;position:relative;background:linear-gradient(#24323a,#3a4a55 55%,#1d2745)}
+.at-blitz{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,.7) 30%,rgba(255,255,255,0) 70%);pointer-events:none;animation:atBlitz .6s ease-out forwards}
+@keyframes atBlitz{from{opacity:1;transform:scale(.4)}to{opacity:0;transform:scale(1.6)}}
+.at-cover{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:2px;color:#fff;opacity:0;transform:translateY(-8px);transition:opacity .6s,transform .6s;text-shadow:0 2px 6px rgba(0,0,0,.6);pointer-events:none}
+.at-cover.an{opacity:1;transform:none}
+.at-cover b{font:italic 700 1.7rem/1 var(--serif);letter-spacing:.04em;color:#f2c14e}
+.at-cover small{font-size:.78rem}
+.at-juryreihe{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:8px;margin:12px 0}
+.at-karte{display:grid;grid-template-columns:38px 1fr 40px;gap:8px;align-items:center;background:#fff;border:1px solid var(--linie);border-radius:14px;padding:8px 10px;font-size:.84rem;opacity:0;animation:atEin .5s ease-out forwards}
+.at-karte b{display:block}.at-karte small{display:block;color:var(--grau);font-size:.74rem}
+.at-note{font:italic 700 1.5rem var(--serif);color:var(--petrol);text-align:center}
+@keyframes atEin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.at-sterne{color:#c9a227;font-size:1.1rem;letter-spacing:2px}
+.at-rueck details{background:#fff;border:1px solid var(--linie);border-radius:12px;padding:8px 12px;margin-bottom:6px;font-size:.88rem}
+.at-rueck summary{cursor:pointer;font-weight:600}
+.at-heft{background:linear-gradient(135deg,#fffaf3,#f6efe4);border-radius:16px;padding:14px 16px;border:1px solid var(--linie)}
+.at-mast{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:2px solid var(--tinte);padding-bottom:6px;margin-bottom:10px;flex-wrap:wrap}
+.at-mast b{font:italic 700 1.4rem var(--serif);letter-spacing:.06em}
+.at-mast span{font-size:.76rem;color:var(--grau)}
+.at-trend{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#b8922a}
+.at-fort{height:6px;border-radius:4px;background:#eadfcf;overflow:hidden;margin-top:10px}.at-fort i{display:block;height:100%;background:var(--gold)}
+.at-etikett{display:inline-block;background:#fff;border:1.5px dashed #b8922a;border-radius:10px;padding:10px 14px;margin:0 0 12px;font-weight:600;font-size:1.02rem;position:relative}
+.at-stangen .antwort{border-top:5px solid #8a6d4b}
+@media (max-width:760px){
+  .kl-wrap{grid-template-columns:1fr;gap:10px}
+  .kl-buehne{height:210px;position:relative}
+  .at-steg{height:260px}
+  .at-cover{top:auto;bottom:10px;left:10px;background:rgba(18,26,40,.55);border-radius:12px;padding:6px 10px}
+  .at-cover b{font-size:1.1rem}
+  .at-cover span{font-size:.86rem}
+  .ch-kopf{grid-template-columns:1fr}
+  .chronik li{grid-template-columns:1fr;gap:0}
+  .marker{max-width:120px}
+  .ld-ma{grid-template-columns:36px 1fr}
+  .ld-ma > .btn,.ld-ma > .kl-knoepfe{grid-column:1/-1}
+  .kl-teile{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){.at-karte,.at-blitz{animation:none;opacity:1}.at-cover{transition:none}}
+/* /ERW-INHALT */
