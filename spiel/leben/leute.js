@@ -1,6 +1,6 @@
 /* Nordstern Leben · Leute und Verkehr in der offenen Welt (Tagesabläufe, Autos an Ampeln)
    © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
-import { THREE, K, IS_TOUCH, etikett, zufall } from "./bau.js";
+import { THREE, K, IS_TOUCH, etikett, etikettMerken, zufall } from "./bau.js";
 import { baueFigur, bewegeFigur } from "./welt.js";
 import { routeGeh, ORTE, TEICH, AMPELN, ampelPhase } from "./stadt.js";
 import { baueAuto, animiereAuto } from "./fahrzeuge.js";
@@ -40,7 +40,7 @@ export function neuerNpc(o) {
   const n = { id, typ, name, look, f, rolle: o.rolle || "flaneur", pfad: [], tempo: (typ === "kind" ? 1.7 : typ.startsWith("senior") ? 1.1 : 1.6) * (o.rolle === "jogger" ? 2 : 1), ruhe: zufall(0, 4), sitzt: false, heim: o.heim || pick(HEIME), drinnen: false, fest: !!o.fest, auftrag: o.auftrag || null, satz: 0 };
   f.g.position.set(o.x != null ? o.x : n.heim[0], 0, o.z != null ? o.z : n.heim[1]); if (o.blick != null) f.g.rotation.y = o.blick;
   if (o.rolle === "hund") { n.hund = baueTier(Math.random() < 0.5 ? "dackel" : "hund", { farbe: pick(["#c8a06a", "#5a3a22", "#1d1d1d", "#f3f4f2"]) }); n.hund.g.scale.setScalar(0.9); K.scene.add(n.hund.g); }
-  if (o.auftrag) { const m = etikett("!", { bg: "#c9a227", fg: "#24323a", pw: 128, ph: 128, rad: 64, tiefe: false }); m.scale.set(0.75, 0.75, 1); m.position.y = 2.75; f.g.add(m); n.marker = m; m.visible = false; }
+  if (o.auftrag) { const m = etikettMerken(etikett("!", { bg: "#c9a227", fg: "#24323a", pw: 128, ph: 128, rad: 64, tiefe: false }), [0.75, 0.75], [0.05, 0.05]); m.position.y = 2.75; f.g.add(m); n.marker = m; m.visible = false; }
   LEUTE.push(n); return n;
 }
 export function initLeute() {

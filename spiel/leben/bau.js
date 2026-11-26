@@ -100,5 +100,9 @@ export function etikett(text, o) {
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: o.tiefe !== false, transparent: true }));
   sp.userData.basis = o.groesse || 1; sp.userData.verh = 0.25; sp.scale.set(4, 1, 1); sp.renderOrder = 5; return sp;
 }
+/* Etiketten, die in der Verfolgerkamera eine feste Bildschirmgröße bekommen */
+export const ETIKETTEN = new Set(); let PERSP = false;
+export function etikettMerken(sp, welt, schirm) { sp.material.sizeAttenuation = false; sp.userData.welt = welt; sp.userData.schirm = schirm; const v = PERSP ? schirm : welt; sp.scale.set(v[0], v[1], 1); ETIKETTEN.add(sp); return sp; }
+export function etikettenModus(persp) { PERSP = persp; ETIKETTEN.forEach((sp) => { if (!sp.parent) { ETIKETTEN.delete(sp); return; } const v = persp ? sp.userData.schirm : sp.userData.welt; sp.scale.set(v[0], v[1], 1); }); }
 export const klemm = (v, a, b) => Math.max(a, Math.min(b, v));
 export const zufall = (a, b) => a + Math.random() * (b - a);

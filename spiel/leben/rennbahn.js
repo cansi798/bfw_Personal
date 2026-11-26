@@ -1,6 +1,6 @@
 /* Nordstern Leben · Rennen auf dem Nordring mit Frage-Toren (Spuren A bis D)
    © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
-import { THREE, K, etikett, zufall } from "./bau.js";
+import { THREE, K, etikett, etikettMerken, zufall } from "./bau.js";
 import { BAHN } from "./stadt.js";
 import { baueAuto, animiereAuto } from "./fahrzeuge.js";
 import { zufallsLook } from "./leute.js";
@@ -30,7 +30,7 @@ export function rennenStart(fahrzeug) {
   const c = K.ctx; if (RENN.aktiv) return;
   const namen = c.mischen((c.H.RIVALEN && c.H.RIVALEN.length ? c.H.RIVALEN : ["Herr Brandt im Dienstwagen", "Die Excel-Rakete", "Betriebsrats-Bolide", "Azubi Leon"]).slice()).slice(0, 4);
   const riv = namen.map((n, i) => { const g = baueAuto(c.pick(["mini", "stromer", "cabrio", "pickup", "van"]), c.pick(["#d0533c", "#f2c14e", "#6fb7e0", "#b07ad8", "#6fae5a", "#24323a"]), zufallsLook(c.pick(["frau", "mann"]))); K.scene.add(g);
-    const e = etikett(n, { bg: "#24323a", fg: "#fffaf3" }); e.scale.set(2.8, 0.7, 1); e.position.y = 2.5; g.add(e);
+    const e = etikettMerken(etikett(n, { bg: "#24323a", fg: "#fffaf3" }), [2.8, 0.7], [0.2, 0.05]); e.position.y = 2.5; g.add(e);
     return { name: n, g, prog: -3 - (i % 2) * 6 - Math.floor(i / 2) * 2, lat: (i % 2 ? -3 : 3) * (i < 2 ? 1 : 0.5), v: 0, max: zufall(10.6, 12.6), boost: 0, slow: 0, fertig: null }; });
   const tore = []; for (let rd = 0; rd < RUNDEN; rd++) TOR_S.forEach((ts) => tore.push(((ts - START_S) + L) % L + rd * L)); tore.sort((p, q) => p - q);
   RENN.aktiv = { riv, tore, ti: 0, prog: 0, letzteS: START_S, zeit: 0, start: 3, liste: [], frage: null, fertig: false, platzFertig: 0 };

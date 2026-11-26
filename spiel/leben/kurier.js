@@ -1,6 +1,6 @@
 /* Nordstern Leben · Kurierjob, Logistik mit Depots und Lieferpunkte als Antworten
    © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
-import { THREE, K, etikett, lam } from "./bau.js";
+import { THREE, K, etikett, etikettMerken, lam } from "./bau.js";
 import { LIEFERPUNKTE } from "./stadt.js";
 import { MARKER } from "./karte.js";
 
@@ -13,7 +13,7 @@ export function zielMarke(x, z, farbe, text) {
   const g = new THREE.Group(); g.position.set(x, 0, z);
   const s = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 9, 20, 1, true), new THREE.MeshBasicMaterial({ color: farbe, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide })); s.position.y = 4.5; g.add(s);
   const r = new THREE.Mesh(new THREE.RingGeometry(1.5, 2.1, 24), new THREE.MeshBasicMaterial({ color: farbe, side: THREE.DoubleSide })); r.rotation.x = -Math.PI / 2; r.position.y = 0.08; g.add(r);
-  if (text) { const e = etikett(text, { bg: farbe, fg: "#ffffff", pw: 256, ph: 128, rad: 50, tiefe: false }); e.scale.set(2.4, 1.2, 1); e.position.y = 5.2; g.add(e); g.userData.etikett = e; }
+  if (text) { const e = etikettMerken(etikett(text, { bg: farbe, fg: "#ffffff", pw: 256, ph: 128, rad: 50, tiefe: false }), [2.4, 1.2], [0.12, 0.06]); e.position.y = 5.2; g.add(e); g.userData.etikett = e; }
   K.scene.add(g); return g;
 }
 export function panel(html) { let p = $("auftragTafel"); if (!p) { p = document.createElement("div"); p.id = "auftragTafel"; p.className = "auftragtafel"; document.body.appendChild(p); } p.hidden = !html; if (html) p.innerHTML = html; return p; }

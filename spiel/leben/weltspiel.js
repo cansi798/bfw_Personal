@@ -1,6 +1,6 @@
 /* Nordstern Leben · Offene Welt, Verbindung zur Spiellogik (Orte, Fahren, Haustiere, Kamera, Steuerung)
    © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
-import { THREE, K, IS_TOUCH, klemm, zufall } from "./bau.js";
+import { THREE, K, IS_TOUCH, klemm, zufall, etikettenModus } from "./bau.js";
 import { MITTE } from "./welt.js";
 import { baueStadt, stadtUpdate, ladenSchildSetzen, ORTE, FREIZEIT, routeGeh, routeAuto, weglaenge, imHeim, imHaus, kollision, EINFAHRT, GRENZE, SEE, TEICH, STERN_ORTE } from "./stadt.js";
 import { MODELLE, baueAuto } from "./fahrzeuge.js";
@@ -507,6 +507,7 @@ function update(dt, t) {
   auftraegeUpdate(dt, t); if (laeuft) kurierUpdate(dt);
   ereignisseUpdate(dt, t, { fokus, laeuft, tempo: c.tempo });
   kameraFolgen(dt);
+  const persp = !!(K.fahrt && FAHR.modus === "hinten"); if (WS.persp !== persp) { WS.persp = persp; etikettenModus(persp); }
   /* Sonne folgt dem Blick, damit Schatten überall stimmen */
   const W = c.W, ziel = K.fahrt ? fokus : new THREE.Vector3(MITTE.x + c.pan.x, 0, MITTE.z + c.pan.z); W.sonne.target.position.set(ziel.x, 0, ziel.z); W.sonne.position.set(ziel.x + 9, 22, ziel.z + 6); W.sonne.target.updateMatrixWorld();
   /* unsichtbar ohne Grund, dann wieder zeigen */

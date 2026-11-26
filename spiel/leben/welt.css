@@ -69,7 +69,7 @@ body:not(.faehrt) .auftragtafel{top:120px}
 body.faehrt #hud .kamera{display:none}
 body.faehrt .minikarte{top:74px;bottom:auto}
 body.faehrt .toasts{top:auto;bottom:130px}
-body.faehrt .auftragtafel{top:214px}
+body.faehrt .auftragtafel{top:84px;left:10px;transform:none;width:min(430px,34vw)}
 @media (max-width:760px){
   #btnKarte,#btnHilfe{display:none}
   .minikarte{top:158px;right:6px}
