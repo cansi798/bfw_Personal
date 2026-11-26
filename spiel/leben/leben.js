@@ -1,6 +1,7 @@
 /* Nordstern Leben · Lebenssimulation mit den Themen des Tages
    © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
 import { THREE, IS_TOUCH, erstelleWelt, setzeKamera, baueMoebel, baueFigur, bewegeFigur, baueBaby, baueStern, baueStorch, konfetti } from "./welt.js";
+import { WELT, WELT_ZIELE, initWelt } from "./weltspiel.js"; /* ERW-WELT */
 
 const S = window.SPIEL || { days: [] }, H = window.HUMOR || {};
 const $ = (id) => document.getElementById(id);
@@ -276,6 +277,7 @@ const TV_WITZ = [
 function aktionenFuer(ziel) {
   const a = [], n = s.name;
   const sperre = (txt) => ({ gesperrt: txt });
+  /* ERW-WELT */ if (WELT.istWeltZiel(ziel)) return WELT.aktionen(ziel); /* /ERW-WELT */
   if (ziel.typ === "moebel") {
     const id = ziel.id, np = nutzpunkt(id);
     switch (id) {
@@ -351,6 +353,7 @@ function aktionenFuer(ziel) {
     else if (ziel.id.startsWith("kind")) { const k = s.kinder[+ziel.id.slice(4)]; if (k) { a.push({ t: "Hausaufgaben helfen", f: () => hausaufgaben(k) }); if (s.gekauft.includes("spielzeug")) a.push({ t: "Spielen", f: () => mitKindSpielen(k) }); else a.push(sperre("Zum Spielen eine Spielzeugkiste kaufen")); } }
     else if (ziel.id === "ich") { a.push({ t: "Lebensziele ansehen", f: zieleZeigen }); a.push({ t: "Stimmung prüfen", f: () => ui.toast(n + " ist " + stimmungText(stimmung()).toLowerCase() + ". Stimmung " + Math.round(stimmung()) + " von 100") }); }
   }
+  /* ERW-WELT */ WELT.ergaenze(ziel, a); /* /ERW-WELT */
   return a;
 }
 function lernFertig(ok) { if (ok) { s.wissen++; s.gelernt++; ui.toast("Wissen plus 1. Mehr Wissen bringt mehr Lohn", "gut"); } else ui.toast("Diesmal kein Wissenspunkt. Einfach noch einmal lesen"); hud(); }
@@ -507,7 +510,7 @@ function storchKommt() {
 }
 function kinderLook() {
   const p = s.partner ? s.partner.look : s.look;
-  return { haut: Math.random() < 0.5 ? s.look.haut : p.haut, haar: pick(["kurz", "locken", "lang", "dutt"]), haarfarbe: Math.random() < 0.5 ? s.look.haarfarbe : p.haarfarbe, oben: pick(["#f2c14e", "#6fb7e0", "#e46b6b", "#6f8f7b"]), hose: "#3a4a6a" };
+  return { haut: Math.random() < 0.5 ? s.look.haut : p.haut, haar: pick(["kurz", "locken", "lang", "dutt", "zopf", "pferdeschwanz", "afro"]), haarfarbe: Math.random() < 0.5 ? s.look.haarfarbe : p.haarfarbe, oben: pick(["#f2c14e", "#6fb7e0", "#e46b6b", "#6f8f7b"]), hose: "#3a4a6a", koerper: pick(["frau", "mann"]) /* ERW-WELT */ };
 }
 const alterTage = (k) => (s.zeit - k.geboren) / 1440;
 const kinderGross = () => s.kinder.filter((k) => alterTage(k) >= 2);
@@ -588,7 +591,7 @@ const ray = new THREE.Raycaster(), maus = new THREE.Vector2();
 function treffer(cx, cy) {
   const r = canvas.getBoundingClientRect(); maus.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(maus, camera);
-  const ziele = Object.values(moebel).concat(Object.values(personen).map((p) => p.f.g));
+  const ziele = Object.values(moebel).concat(Object.values(personen).map((p) => p.f.g)).concat(WELT.klickbar()); /* ERW-WELT: Orte, Fahrzeuge, Tiere, Leute */
   const hits = ray.intersectObjects(ziele, true);
   for (const h of hits) { let o = h.object; while (o && !o.userData.ziel) o = o.parent; if (o && o.visible !== false) return { ziel: o.userData.ziel, punkt: h.point }; }
   const boden = ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), new THREE.Vector3());
@@ -597,10 +600,11 @@ function treffer(cx, cy) {
 function menueZu() { $("menue").hidden = true; }
 function zeigeMenue(t, cx, cy) {
   if (t.ziel.typ === "boden") {
+    /* ERW-WELT */ if (WELT.bodenKlick(t.punkt)) { menueZu(); return; } /* /ERW-WELT */
     const p = t.punkt; if (p.x > -2 && p.x < 16 && p.z > -1 && p.z < 15) { aufstehen(ich); geheZu(ich, p.x, p.z); } menueZu(); return;
   }
   const liste = aktionenFuer(t.ziel); if (!liste.length) return;
-  const titel = t.ziel.typ === "moebel" ? (KATALOG[t.ziel.id]?.name || { bett: "Bett", kuehl: "Kühlschrank", dusche: "Dusche", waschbecken: "Waschbecken", pc: "Schreibtisch mit PC", theke: "Küchenzeile", tuer: "Haustür", briefkasten: "Briefkasten" }[t.ziel.id] || "")
+  const titel = WELT.istWeltZiel(t.ziel) ? WELT.titel(t.ziel) /* ERW-WELT */ : t.ziel.typ === "moebel" ? (KATALOG[t.ziel.id]?.name || { bett: "Bett", kuehl: "Kühlschrank", dusche: "Dusche", waschbecken: "Waschbecken", pc: "Schreibtisch mit PC", theke: "Küchenzeile", tuer: "Haustür", briefkasten: "Briefkasten" }[t.ziel.id] || "")
     : t.ziel.id === "partner" ? s.partner.name : t.ziel.id === "ich" ? s.name : (s.kinder[+t.ziel.id.slice(4)] || {}).name;
   const m = $("menue");
   m.innerHTML = `<p>${esc(titel)}</p>` + liste.map((a, i) => a.gesperrt ? `<span class="aus">${esc(a.gesperrt)}</span>` : `<button type="button" data-i="${i}">${esc(a.t)}</button>`).join("");
@@ -616,19 +620,19 @@ canvas.addEventListener("pointerdown", (e) => { canvas.setPointerCapture(e.point
   if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: zoom }; } });
 canvas.addEventListener("pointermove", (e) => {
   if (!zeiger.has(e.pointerId)) return; zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (pinch && zeiger.size === 2) { const [a, b] = [...zeiger.values()]; zoom = Math.max(0.6, Math.min(2.6, pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d)); bewegt = true; groesse(); return; }
+  if (pinch && zeiger.size === 2) { const [a, b] = [...zeiger.values()]; zoom = Math.max(WELT.zoomMin /* ERW-WELT */, Math.min(2.6, pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d)); bewegt = true; groesse(); return; }
   if (ziehStart && zeiger.size === 1) {
     const dx = e.clientX - ziehStart.x, dy = e.clientY - ziehStart.y; if (Math.hypot(dx, dy) > 8) bewegt = true;
     if (bewegt) { const a = Math.PI / 4 + drehung * Math.PI / 2, k = 16 / innerHeight / zoom * 1.25;
       const rechts = new THREE.Vector3(Math.cos(a), 0, -Math.sin(a)), vor = new THREE.Vector3(-Math.sin(a), 0, -Math.cos(a));
-      pan.copy(ziehStart.pan).addScaledVector(rechts, -dx * k).addScaledVector(vor, dy * k); pan.x = Math.max(-9, Math.min(9, pan.x)); pan.z = Math.max(-8, Math.min(9, pan.z)); groesse(); menueZu(); }
+      pan.copy(ziehStart.pan).addScaledVector(rechts, -dx * k).addScaledVector(vor, dy * k); pan.x = Math.max(WELT.grenzen.x0, Math.min(WELT.grenzen.x1, pan.x)); pan.z = Math.max(WELT.grenzen.z0, Math.min(WELT.grenzen.z1, pan.z)); /* ERW-WELT */ groesse(); menueZu(); }
   } });
 canvas.addEventListener("pointerup", (e) => {
   zeiger.delete(e.pointerId); if (zeiger.size < 2) pinch = null;
-  if (!bewegt && ziehStart && s && !dialogOffen) { const t = treffer(e.clientX, e.clientY); if (t) zeigeMenue(t, e.clientX, e.clientY); else menueZu(); }
+  if (!bewegt && ziehStart && s && !dialogOffen && !WELT.faehrt() /* ERW-WELT */) { const t = treffer(e.clientX, e.clientY); if (t) zeigeMenue(t, e.clientX, e.clientY); else menueZu(); }
   if (!zeiger.size) ziehStart = null;
 });
-canvas.addEventListener("wheel", (e) => { e.preventDefault(); zoom = Math.max(0.6, Math.min(2.6, zoom * (e.deltaY < 0 ? 1.1 : 0.9))); groesse(); }, { passive: false });
+canvas.addEventListener("wheel", (e) => { e.preventDefault(); zoom = Math.max(WELT.zoomMin /* ERW-WELT */, Math.min(2.6, zoom * (e.deltaY < 0 ? 1.1 : 0.9))); groesse(); }, { passive: false });
 
 /* ---------- Spielschleife ---------- */
 let lampeAn = false, letzt = performance.now(), funkZeit = 0, speicherZeit = 0, kiZeit = 0;
@@ -645,7 +649,7 @@ function licht() {
 }
 function bewege(p, dt, tt) {
   if (p.ziel) {
-    const pos = p.f.g.position, d = new THREE.Vector3().subVectors(p.ziel, pos); d.y = 0; const l = d.length(), v = (p.f.kind ? 1.7 : 2.4) * dt * Math.max(1, tempo * 0.75);
+    const pos = p.f.g.position, d = new THREE.Vector3().subVectors(p.ziel, pos); d.y = 0; const l = d.length(), v = (p.f.kind ? 1.7 : 2.4) * dt * Math.max(1, tempo * 0.75) * (p.tempoF || 1); /* ERW-WELT: tempoF für weite Wege */
     if (l <= v) { pos.x = p.ziel.x; pos.z = p.ziel.z; p.ziel = null; const f = p.dann; p.dann = null; if (f) f(); }
     else { pos.addScaledVector(d.normalize(), v); p.f.g.rotation.y = Math.atan2(d.x, d.z); }
   }
@@ -669,7 +673,7 @@ function schleife(jetzt) {
   const dt = Math.min(0.1, (jetzt - letzt) / 1000); letzt = jetzt; const tt = jetzt / 1000;
   if (s && ich) {
     if (!dialogOffen && tempo > 0) {
-      let mps = TEMPO[tempo]; if (ich.aktiv && ich.aktiv.schnell) mps = 45;
+      let mps = TEMPO[tempo] * WELT.zeitFaktor(); /* ERW-WELT */ if (ich.aktiv && ich.aktiv.schnell) mps = 45;
       const min = dt * mps; s.zeit += min; abbau(min); tagesEreignisse();
       const a = ich.aktiv;
       if (a) { if (a.wirkung) BED.forEach((b) => { if (a.wirkung[b]) s.bed[b] = klemm(s.bed[b] + a.wirkung[b] * min / 60); }); a.rest -= min;
@@ -685,8 +689,9 @@ function schleife(jetzt) {
     const kopf = ich.f.g.position; stern.position.set(kopf.x, (ich.liegt ? 1.3 : 2.25) + Math.sin(tt * 2.5) * 0.06, kopf.z); stern.quaternion.copy(camera.quaternion); stern.rotateZ(tt * 1.5); stern.visible = ich.f.g.visible;
     speicherZeit += dt; if (speicherZeit > 8) { speicherZeit = 0; speichern(); }
   }
+  /* ERW-WELT */ WELT.update(dt, tt); /* /ERW-WELT */
   for (let i = animationen.length - 1; i >= 0; i--) { const a = animationen[i]; if (!a.fn((jetzt - a.t0) / 1000)) animationen.splice(i, 1); }
-  renderer.render(scene, camera);
+  renderer.render(scene, WELT.kamera() || camera); /* ERW-WELT: Verfolgerkamera im Auto */
   requestAnimationFrame(schleife);
 }
 
@@ -695,7 +700,7 @@ const HAUT = ["#f3d3bd", "#e2b18b", "#c68b5e", "#8d5a3b", "#5c3a26"], HAAR = ["#
 const KLEID = ["#7b2338", "#1f3557", "#6f8f7b", "#0f5c63", "#c9a227", "#c76b5b"];
 function startbild() {
   const alt = laden();
-  let look = { haut: HAUT[1], haar: "kurz", haarfarbe: HAAR[1], oben: KLEID[0], hose: "#2f3b4a", rock: false };
+  let look = { haut: HAUT[1], haar: "kurz", haarfarbe: HAAR[1], oben: KLEID[0], hose: "#2f3b4a", rock: false, koerper: "frau" }; /* ERW-WELT: koerper und bart */
   try { const m = JSON.parse(localStorage.getItem("pe26_atelier_model") || "null"); if (m) { look.haut = m.haut; look.haarfarbe = m.haarfarbe; look.haar = { wellen: "lang", bob: "lang", locken: "locken", dutt: "dutt" }[m.haar] || "kurz"; } } catch (e) {}
   let name = "Kim";
   const vorschau = () => { entferne("vorschau"); const p = person("vorschau", look, false); p.f.g.position.set(7, 0, 8.5); p.f.g.rotation.y = 0.6; p.pose = "winken"; };
@@ -706,11 +711,17 @@ function startbild() {
       <label class="feld">Name<input class="eingabe" id="sName" maxlength="14" value="${esc(name)}"></label>
       <div class="feld"><span>Hautton</span><div class="farben">${HAUT.map((c) => `<button type="button" class="farbe" data-k="haut" data-v="${c}" style="background:${c}" aria-label="Hautton" aria-pressed="${look.haut === c}"></button>`).join("")}</div></div>
       <div class="feld"><span>Haarfarbe</span><div class="farben">${HAAR.map((c) => `<button type="button" class="farbe" data-k="haarfarbe" data-v="${c}" style="background:${c}" aria-label="Haarfarbe" aria-pressed="${look.haarfarbe === c}"></button>`).join("")}</div></div>
-      <div class="feld"><span>Frisur</span><div class="schnitte">${[["kurz", "Kurz"], ["lang", "Lang"], ["dutt", "Dutt"], ["locken", "Locken"]].map(([v, t]) => `<button type="button" class="schnitt" data-k="haar" data-v="${v}" aria-pressed="${look.haar === v}">${t}</button>`).join("")}</div></div>
+      <!-- ERW-WELT --><div class="feld"><span>Figur</span><div class="schnitte">${[["frau", "Frau"], ["mann", "Mann"]].map(([v, t]) => `<button type="button" class="schnitt" data-k="koerper" data-v="${v}" aria-pressed="${look.koerper === v}">${t}</button>`).join("")}</div></div>
+      <div class="feld"><span>Frisur</span><div class="schnitte">${[["kurz", "Kurz"], ["lang", "Lang"], ["dutt", "Dutt"], ["locken", "Locken"], ["zopf", "Zopf"], ["pferdeschwanz", "Pferdeschwanz"], ["seitenscheitel", "Seitenscheitel"], ["undercut", "Undercut"], ["afro", "Afro"], ["glatze", "Glatze"]].map(([v, t]) => `<button type="button" class="schnitt" data-k="haar" data-v="${v}" aria-pressed="${look.haar === v}">${t}</button>`).join("")}</div></div>
+      <div class="feld"><span>Bart</span><div class="schnitte">${[["", "Kein Bart"], ["dreitage", "Dreitagebart"], ["voll", "Vollbart"], ["schnurr", "Schnurrbart"]].map(([v, t]) => `<button type="button" class="schnitt" data-k="bart" data-v="${v}" aria-pressed="${(look.bart || "") === v}">${t}</button>`).join("")}</div></div><!-- /ERW-WELT -->
       <div class="feld"><span>Kleidung</span><div class="farben">${KLEID.map((c) => `<button type="button" class="farbe" data-k="oben" data-v="${c}" style="background:${c}" aria-label="Kleidungsfarbe" aria-pressed="${look.oben === c}"></button>`).join("")}</div>
         <div class="schnitte"><button type="button" class="schnitt" data-k="rock" data-v="0" aria-pressed="${!look.rock}">Hose</button><button type="button" class="schnitt" data-k="rock" data-v="1" aria-pressed="${look.rock}">Rock</button></div></div>
       <div class="reihe"><button class="btn${alt ? " leise" : ""}" id="neu" type="button">Neues Leben starten</button><a class="btn leise" href="../index.html?tag=${tag}">Zur Spielauswahl</a></div></div>`;
-    $("start").querySelectorAll("[data-k]").forEach((b) => b.onclick = () => { const k = b.dataset.k; look[k] = k === "rock" ? b.dataset.v === "1" : b.dataset.v; name = $("sName").value; klang("klick"); vorschau(); zeichne(); });
+    $("start").querySelectorAll("[data-k]").forEach((b) => b.onclick = () => { const k = b.dataset.k; look[k] = k === "rock" ? b.dataset.v === "1" : b.dataset.v;
+      /* ERW-WELT: passende Vorschläge, alles bleibt frei kombinierbar */ if (k === "bart" && !b.dataset.v) delete look.bart;
+      if (k === "koerper" && b.dataset.v === "frau") { if (["glatze", "undercut", "kurz"].includes(look.haar)) look.haar = "lang"; delete look.bart; }
+      if (k === "koerper" && b.dataset.v === "mann") { if (["lang", "zopf", "pferdeschwanz", "dutt"].includes(look.haar)) look.haar = "kurz"; look.rock = false; } /* /ERW-WELT */
+      name = $("sName").value; klang("klick"); vorschau(); zeichne(); });
     $("neu").onclick = () => { name = ($("sName").value || "Kim").trim().slice(0, 14); entferne("vorschau"); s = neuerStand(look, name); los(true); };
     if (alt) $("weiter").onclick = () => { entferne("vorschau"); s = alt; los(false); };
   };
@@ -718,13 +729,16 @@ function startbild() {
 }
 function los(neu) {
   $("start").hidden = true; $("hud").hidden = false;
+  initWelt(s); /* ERW-WELT: neue Felder mit Standardwerten */
   pools(); START_MOEBEL.concat(s.gekauft).forEach((id) => stelleAuf(id));
   ich = person("ich", s.look, false); ich.f.g.position.set(neu ? 7 : 6, 0, neu ? 11.5 : 7);
+  WELT.start(s); /* ERW-WELT: Fahrzeug, Haustiere */
   if (s.partner) partnerErscheint(false);
   familieAktualisieren(); hud(); licht(); speichern();
   if (neu) info("Willkommen in Nordstern", `<p>${esc(s.name)} zieht in ein kleines Haus in Nordstern City und beginnt mit einem Praktikum in der Personalabteilung der Nordstern Fahrradwerke.</p>
     <p><b>So geht es.</b> Tippen Sie auf Möbel, Personen oder den Boden. Über die Haustür geht es zur Arbeit, mit Fragen zum Thema ${esc(day.title)}. Mit dem Geld kaufen Sie Möbel am PC. Achten Sie auf die Bedürfnisse unten links.</p>
-    <p class="hinweis">Tipp, im Briefkasten wartet die Nachbarschaft. Vielleicht ist die große Liebe dabei.</p>`, [["Los geht es", () => { geheZu(ich, 7, 9); pruefeZiele(); }]]);
+    <p class="hinweis">Tipp, im Briefkasten wartet die Nachbarschaft. Vielleicht ist die große Liebe dabei.</p>
+    <!-- ERW-WELT --><p><b>Nordstern City.</b> Mit Pfeiltasten oder WASD laufen Sie überallhin, E öffnet die Aktionen in der Nähe. Die Karte zeigt Café, Kino, Badesee, Werk, Autohaus, Tierhandlung und mehr. Mit dem Knopf ? sehen Sie alle Tasten.</p><!-- /ERW-WELT -->`, [["Los geht es", () => { geheZu(ich, 7, 9); pruefeZiele(); }]]);
 }
 function themaWaehlen() {
   const k = dialog(`<p class="dkopf">Thema der Fragen</p><p class="intro">Arbeit, Lernen und Gespräche nutzen die Themen dieses Unterrichtstags. Der Spielstand bleibt erhalten.</p><select class="eingabe" id="tSel">${S.days.map((d) => `<option value="${d.nr}"${d.nr === tag ? " selected" : ""}>Tag ${d.nr}, ${esc(d.title)}</option>`).join("")}</select><div class="reihe"><button class="btn" id="tOk" type="button">Übernehmen</button></div>`);
@@ -738,7 +752,7 @@ $("btnZiele").onclick = () => { if (s) zieleZeigen(); };
 $("hThema").onclick = themaWaehlen;
 $("btnDrehen").onclick = () => { drehung = (drehung + 1) % 4; groesse(); };
 $("btnPlus").onclick = () => { zoom = Math.min(2.6, zoom * 1.2); groesse(); };
-$("btnMinus").onclick = () => { zoom = Math.max(0.6, zoom / 1.2); groesse(); };
+$("btnMinus").onclick = () => { zoom = Math.max(WELT.zoomMin /* ERW-WELT */, zoom / 1.2); groesse(); };
 $("btnTon").onclick = () => { ton = !ton; try { localStorage.setItem("pe26_spiel_ton", ton ? "1" : "0"); } catch (e) {} $("btnTon").classList.toggle("aus", !ton); };
 $("btnTon").classList.toggle("aus", !ton);
 $("btnBed").onclick = () => document.body.classList.toggle("bed-zu");
@@ -749,5 +763,19 @@ addEventListener("keydown", (e) => {
   if (e.key === "Escape") menueZu();
 });
 addEventListener("pagehide", speichern);
+/* ERW-WELT: offene Welt anbinden */
+const weltCtx = {
+  get s() { return s; }, get ich() { return ich; }, get day() { return day; }, get tag() { return tag; }, get tempo() { return tempo; }, get dialogOffen() { return dialogOffen; },
+  get drehung() { return drehung; }, get zoom() { return zoom; }, set zoom(v) { zoom = v; },
+  pan, camera, scene, W, personen, moebel, PLATZ, KATALOG, H, BED,
+  person, entferne, geheZu, dreheZu, dauerAktion, aufstehen, frageRunde, lernKarte, sortFrage, info, dialog, dialogZu, ui, klang, zeitVergeht, stunde, lebensTag, pruefeZiele, hud, speichern,
+  animiere, funken, zeigeMenue, menueZu, aktionenFuer, lernFertig, zurArbeit, groesse, esc, euro, pick, mischen, naechsteFrage, naechsteKarte, naechsteSort, antwortZaehlen, partnerDa, ton: () => ton
+};
+ZIELE.push(...WELT_ZIELE);
+GAESTE[0].look.koerper = "frau"; GAESTE[1].look.koerper = "mann"; GAESTE[1].look.bart = "schnurr"; GAESTE[1].look.haar = "seitenscheitel"; GAESTE[2].look.koerper = "frau"; GAESTE[2].look.haar = "pferdeschwanz";
+KANDIDATEN[0].look.koerper = "mann"; KANDIDATEN[0].look.bart = "dreitage"; KANDIDATEN[1].look.koerper = "frau"; KANDIDATEN[2].look.koerper = "frau";
+WELT.baue(weltCtx);
+/* /ERW-WELT */
 groesse(); startbild(); requestAnimationFrame(schleife);
 window.__leben = { stand: () => s, personen, aktionenFuer, zeit: (m) => zeitVergeht(m), geld: (g) => { s.geld += g; hud(); } };
+window.__leben.welt = WELT.test; window.__leben.ctx = weltCtx; /* ERW-WELT */
