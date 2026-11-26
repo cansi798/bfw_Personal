@@ -24,6 +24,7 @@ export function initWelt(s) {
   if (!("auto" in s)) s.auto = null; if (!Array.isArray(s.autos)) s.autos = []; if (!Array.isArray(s.tiere)) s.tiere = [];
   if (typeof s.fitness !== "number") s.fitness = 0; if (!s.besucht || typeof s.besucht !== "object") s.besucht = {}; if (typeof s.gassi !== "number") s.gassi = 0;
   if (!Array.isArray(s.wissenssterne)) s.wissenssterne = []; if (!s.auftraege || typeof s.auftraege !== "object") s.auftraege = null;
+  s.tiere = s.tiere.filter((t) => t && ARTEN[t.art]);
   if (s.auto && !MODELLE[s.auto.modell]) s.auto = null; if (s.auto && !s.autos.length) s.autos.push(Object.assign({}, s.auto));
   return s;
 }
@@ -53,7 +54,8 @@ function baue(ctx) {
   /* Schaufahrzeuge im Autohaus */
   [["mini", "#d0533c", 39.2], ["stromer", "#ffffff", 42.6], ["cabrio", "#f2c14e", 46]].forEach(([m, f, x]) => { const a = baueAuto(m, f); a.position.set(x, 0.0, 13.3); a.rotation.y = 0.35; WS.welt.orte.autohaus.add(a); });
   const w = document.querySelector("#hud .werte"); if (w) { const sp = document.createElement("span"); sp.innerHTML = 'Fitness <b id="hFitness">0</b>'; w.appendChild(sp); const sp2 = document.createElement("span"); sp2.innerHTML = 'Sterne <b id="hSterne">0</b>'; w.appendChild(sp2); }
-  window.NL_WELT = { tiere: () => (K.ctx.s ? K.ctx.s.tiere : []), auto: () => (K.ctx.s ? K.ctx.s.auto : null) };
+  window.NL_WELT = { tiere: () => (K.ctx.s ? K.ctx.s.tiere : []), auto: () => (K.ctx.s ? K.ctx.s.auto : null),
+    beschaeftigt: () => { const i = K.ctx.ich; return !!(K.fahrt || K.modus || (i && (i.ziel || i.dann || !i.f.g.visible))); } };
 }
 function start(s) {
   initWelt(s);
