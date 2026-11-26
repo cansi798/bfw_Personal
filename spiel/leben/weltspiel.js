@@ -12,7 +12,7 @@ import { initKarte, miniUpdate, grosseKarte } from "./karte.js";
 import { initAuftraege, auftragAktionen, auftraegeUpdate, AUF, tourStarten, sternSammeln } from "./auftraege.js";
 import { kurierStart, kurierUpdate, KUR, panel } from "./kurier.js";
 import { rennenStart, rennUpdate, RENN } from "./rennbahn.js";
-import { ereignisseUpdate, ereignisAktionen, ereignisName, ereignisGruppen, EREIG, ereignisStart, regenStart } from "./ereignisse.js";
+import { ereignisseUpdate, ereignisAktionen, ereignisName, ereignisGruppen, EREIG, ereignisStart, regenStart } from "./weltereignisse.js";
 
 const $ = (id) => document.getElementById(id);
 const WS = { welt: null, folgen: true, pauseBis: 0, pauseBisBewegung: false, letztePan: new THREE.Vector3(), laufId: 0, tiere: {}, stange: null, letzteZeit: null, naechstes: null, hintT: 0, miniT: 0, ladenT: 0, ortNah: null, gassi: null, popcorn: false, anzeige: {} };
