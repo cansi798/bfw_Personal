@@ -23,7 +23,7 @@ export function erstelleWelt(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !IS_TOUCH, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, IS_TOUCH ? 1.5 : 1.75));
   renderer.shadowMap.enabled = !IS_TOUCH;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap; /* ERW-WELT: PCFSoft gibt es in r187 nicht mehr */
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#bfe3f2");
   const camera = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 200);
@@ -35,10 +35,13 @@ export function erstelleWelt(canvas) {
   sonne.shadow.mapSize.set(2048, 2048); sonne.shadow.bias = -0.0008;
 
   // Garten
-  const gras = box(60, 0.1, 60, "#93c871", 7, -0.06, 6, scene); gras.castShadow = false;
+  /* ERW-WELT: großer Boden für die offene Welt, Gartentor im Zaun */
+  const gras = box(250, 0.1, 160, "#93c871", 40, -0.06, 6, scene); gras.castShadow = false;
   box(2.2, 0.04, 4.6, "#d9cdb8", 7, 0.0, 12.5, scene).castShadow = false;
-  for (let x = -2; x <= 16; x += 1.2) { box(0.12, 0.7, 0.12, "#fffaf0", x, 0.35, 15.2, scene); }
-  box(18.4, 0.08, 0.06, "#fffaf0", 7, 0.55, 15.2, scene); box(18.4, 0.08, 0.06, "#fffaf0", 7, 0.25, 15.2, scene);
+  for (let x = -2; x <= 16; x += 1.2) { if (x > 5.9 && x < 8.1) continue; box(0.12, 0.7, 0.12, "#fffaf0", x, 0.35, 15.2, scene); }
+  [6.0, 8.0].forEach((x) => box(0.16, 0.95, 0.16, "#fffaf0", x, 0.47, 15.2, scene));
+  [[-2.2, 6.0], [8.0, 16.2]].forEach(([a, b]) => { box(b - a, 0.08, 0.06, "#fffaf0", (a + b) / 2, 0.55, 15.2, scene); box(b - a, 0.08, 0.06, "#fffaf0", (a + b) / 2, 0.25, 15.2, scene); });
+  /* /ERW-WELT */
   [[-1.5, 2], [15.6, 3], [-1.8, 9], [16, 11], [12.6, 13.6]].forEach(([x, z], i) => baum(scene, x, z, 0.9 + (i % 3) * 0.2));
   [[1.4, 13.8], [2.6, 14.1], [11.2, 13.9], [9.8, 14.2]].forEach(([x, z], i) => blume(scene, x, z, ["#e46b6b", "#f2c14e", "#b07ad8", "#f39bb0"][i]));
 
@@ -76,9 +79,9 @@ function blume(p, x, z, c) {
 
 /* ---------- Kamera ---------- */
 export function setzeKamera(camera, waende, drehung, zoom, pan, breite, hoehe) {
-  const a = Math.PI / 4 + drehung * Math.PI / 2, d = 30;
+  const a = Math.PI / 4 + drehung * Math.PI / 2, d = 90; /* ERW-WELT: weiter entfernt, damit die ganze Stadt in den Tiefenbereich passt */
   const ziel = MITTE.clone().add(pan);
-  camera.position.set(ziel.x + Math.sin(a) * d, 24, ziel.z + Math.cos(a) * d);
+  camera.position.set(ziel.x + Math.sin(a) * d, 72, ziel.z + Math.cos(a) * d); camera.far = 420;
   camera.lookAt(ziel);
   const view = 16, asp = breite / Math.max(1, hoehe);
   const vs = asp < 1 ? view / asp * 0.82 : view;
@@ -192,30 +195,44 @@ export function baueMoebel(art) {
 
 /* ---------- Figuren ---------- */
 export function baueFigur(o) {
-  const g = new THREE.Group(), k = o.kind ? 0.62 : 1;
-  const inner = new THREE.Group(); inner.scale.setScalar(k); g.add(inner);
-  const huefte = 0.82;
-  const bein = (x) => { const p = new THREE.Group(); p.position.set(x, huefte, 0); inner.add(p); box(0.19, 0.78, 0.21, o.hose, 0, -0.39, 0, p); box(0.2, 0.08, 0.3, "#3a2a22", 0, -0.78, 0.04, p); return p; };
-  const beinL = bein(-0.12), beinR = bein(0.12);
-  box(0.5, 0.64, 0.3, o.oben, 0, 1.14, 0, inner);
+  /* ERW-WELT: o.koerper "frau" | "mann" (ohne Angabe die bisherige Figur), o.bart und weitere Frisuren */
+  const g = new THREE.Group(), k = o.kind ? 0.62 : 1, kp = o.koerper;
+  const inner = new THREE.Group(); inner.scale.setScalar(k); if (kp === "frau") inner.scale.set(k * 0.97, k * 0.96, k * 0.97); if (kp === "mann") inner.scale.set(k * 1.02, k * 1.03, k * 1.02); g.add(inner);
+  const huefte = 0.82, beinX = kp === "frau" ? 0.115 : 0.12;
+  const bein = (x) => { const p = new THREE.Group(); p.position.set(x, huefte, 0); inner.add(p); box(kp === "frau" ? 0.18 : 0.19, 0.78, kp === "frau" ? 0.2 : 0.21, o.hose, 0, -0.39, 0, p); box(0.2, 0.08, 0.3, o.schuhe || "#3a2a22", 0, -0.78, 0.04, p); return p; };
+  const beinL = bein(-beinX), beinR = bein(beinX);
+  let torso;
+  if (kp === "frau") { torso = box(0.44, 0.36, 0.28, o.oben, 0, 1.28, 0, inner); box(0.34, 0.2, 0.24, o.oben, 0, 1.02, 0, inner); box(0.47, 0.14, 0.29, o.rock ? o.hose : o.oben, 0, 0.88, 0, inner); }
+  else if (kp === "mann") { torso = box(0.56, 0.42, 0.31, o.oben, 0, 1.25, 0, inner); box(0.46, 0.26, 0.29, o.oben, 0, 0.94, 0, inner); }
+  else torso = box(0.5, 0.64, 0.3, o.oben, 0, 1.14, 0, inner);
   if (o.rock) { const r = cyl(0.27, 0.36, 0.42, o.hose, 0, 0.78, 0, inner, 14); r.scale.z = 0.8; }
-  const arm = (x) => { const p = new THREE.Group(); p.position.set(x, 1.4, 0); inner.add(p); box(0.13, 0.58, 0.15, o.oben, 0, -0.27, 0, p); kug(0.075, o.haut, 0, -0.6, 0, p); return p; };
-  const armL = arm(-0.33), armR = arm(0.33);
+  const armX = kp === "frau" ? 0.29 : kp === "mann" ? 0.36 : 0.33;
+  const arm = (x) => { const p = new THREE.Group(); p.position.set(x, 1.4, 0); inner.add(p); box(kp === "frau" ? 0.12 : 0.13, 0.58, kp === "mann" ? 0.16 : 0.15, o.oben, 0, -0.27, 0, p); kug(0.075, o.haut, 0, -0.6, 0, p); return p; };
+  const armL = arm(-armX), armR = arm(armX);
   cyl(0.08, 0.09, 0.14, o.haut, 0, 1.5, 0, inner, 8);
   const kopf = new THREE.Group(); kopf.position.set(0, 1.72, 0); inner.add(kopf);
-  kug(0.23, o.haut, 0, 0, 0, kopf);
+  const schaedel = kug(0.23, o.haut, 0, 0, 0, kopf); if (kp === "mann") schaedel.scale.set(1.03, 1, 1); if (kp === "frau") schaedel.scale.set(0.97, 1, 0.97);
   kug(0.03, "#2b1626", -0.08, 0.02, 0.21, kopf); kug(0.03, "#2b1626", 0.08, 0.02, 0.21, kopf);
   box(0.09, 0.02, 0.02, "#a8444f", 0, -0.09, 0.215, kopf);
   const h = o.haarfarbe, hs = o.haar;
   if (hs === "locken") { [[0, 0.13, -0.02, 0.17], [-0.15, 0.08, -0.04, 0.14], [0.15, 0.08, -0.04, 0.14], [-0.17, -0.06, -0.06, 0.12], [0.17, -0.06, -0.06, 0.12], [0, 0.04, -0.17, 0.17]].forEach(([x, y, z, r]) => kug(r, h, x, y, z, kopf)); }
+  else if (hs === "afro") { const a = kug(0.36, h, 0, 0.1, -0.05, kopf); a.scale.set(1, 0.9, 0.95); }
+  else if (hs === "glatze") { /* keine Haare */ }
+  else if (hs === "undercut") { const kp2 = kug(0.24, h, 0, 0.06, -0.02, kopf); kp2.scale.set(0.96, 0.62, 1); const t = kug(0.17, h, 0, 0.2, 0.03, kopf); t.scale.set(1, 0.5, 1.15); }
   else {
     const kappe = kug(0.245, h, 0, 0.05, -0.03, kopf); kappe.scale.set(1, 0.85, 1);
     if (hs === "lang") { box(0.44, 0.5, 0.14, h, 0, -0.2, -0.14, kopf); box(0.08, 0.38, 0.16, h, -0.2, -0.14, 0.02, kopf); box(0.08, 0.38, 0.16, h, 0.2, -0.14, 0.02, kopf); }
     if (hs === "dutt") kug(0.12, h, 0, 0.2, -0.2, kopf);
+    if (hs === "zopf") { for (let i = 0; i < 4; i++) kug(0.075 - i * 0.008, h, 0, -0.05 - i * 0.12, -0.25 - (i ? 0.02 : 0), kopf); }
+    if (hs === "pferdeschwanz") { kug(0.07, h, 0, 0.12, -0.24, kopf); const pz = cyl(0.07, 0.03, 0.36, h, 0, -0.06, -0.31, kopf, 8); pz.rotation.x = 0.35; }
+    if (hs === "seitenscheitel") { const f = box(0.3, 0.08, 0.12, h, -0.06, 0.17, 0.15, kopf); f.rotation.z = 0.25; }
   }
+  if (o.bart === "dreitage") { const b = box(0.3, 0.1, 0.08, h, 0, -0.13, 0.17, kopf); b.material = mat(h, { transparent: true, opacity: 0.45 }); }
+  if (o.bart === "voll") { box(0.34, 0.16, 0.12, h, 0, -0.15, 0.15, kopf); box(0.06, 0.2, 0.12, h, -0.19, -0.04, 0.09, kopf); box(0.06, 0.2, 0.12, h, 0.19, -0.04, 0.09, kopf); }
+  if (o.bart === "schnurr") box(0.14, 0.035, 0.03, h, 0, -0.06, 0.225, kopf);
   if (o.brille) { box(0.1, 0.06, 0.02, "#1d1d1d", -0.08, 0.02, 0.225, kopf); box(0.1, 0.06, 0.02, "#1d1d1d", 0.08, 0.02, 0.225, kopf); }
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
-  return { g, inner, beinL, beinR, armL, armR, kopf, kind: !!o.kind };
+  return { g, inner, beinL, beinR, armL, armR, kopf, kind: !!o.kind, torso, koerper: kp || null };
 }
 export function bewegeFigur(f, t, laeuft, pose) {
   const s = laeuft ? Math.sin(t * 9) * 0.55 : 0;

@@ -1,0 +1,86 @@
+/* Nordstern Leben · Offene Welt (Minikarte, Steuerung, Fahrmodus, Aufträge)
+   © 2026 Waybuild Akademie, Waybuild UG (haftungsbeschränkt). Alle Rechte vorbehalten. · www.waybuild.de */
+#hud .kamera{bottom:26px}
+#hud .kamera button[aria-pressed="true"]{background:var(--petrol);color:#fff}
+#btnKarte{padding:10px 14px}
+.minikarte{position:fixed;right:10px;top:74px;z-index:5;width:156px;background:rgba(255,250,243,.94);border-radius:18px;padding:3px;box-shadow:0 8px 22px -12px rgba(0,0,0,.6)}
+.minikarte canvas{display:block;width:150px;height:150px;border-radius:50%;cursor:pointer}
+.mkkopf{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:none;padding:3px 8px 4px;font-weight:700;font-size:.74rem;color:var(--petrol);cursor:pointer}
+.mkkopf i::after{content:"▾"}
+.minikarte.zu canvas{display:none}.minikarte.zu .mkkopf i::after{content:"▸"}
+.minikarte.zu{width:auto}
+.steuerkreuz{position:fixed;left:14px;bottom:150px;z-index:7;display:none;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,58px);gap:4px}
+.steuerkreuz button,.pedale button,.eknopf{border:0;border-radius:16px;background:rgba(255,250,243,.9);font-size:1.3rem;font-weight:700;box-shadow:0 6px 16px -8px rgba(0,0,0,.6);touch-action:none;user-select:none;-webkit-user-select:none;color:var(--tinte)}
+.steuerkreuz button.an,.pedale button.an{background:var(--petrol);color:#fff}
+.steuerkreuz [data-r="hoch"]{grid-column:2;grid-row:1}.steuerkreuz [data-r="links"]{grid-column:1;grid-row:2}.steuerkreuz [data-r="rechts"]{grid-column:3;grid-row:2}.steuerkreuz [data-r="runter"]{grid-column:2;grid-row:3}
+.eknopf{position:fixed;right:64px;bottom:160px;width:64px;height:64px;border-radius:50%;z-index:7;display:none;background:var(--gold);color:#2a2105;font-size:1.4rem}
+body.kreuz-an:not(.faehrt) .steuerkreuz{display:grid}
+body.kreuz-an:not(.faehrt) .eknopf{display:block}
+.pedale{position:fixed;inset:auto 0 0 0;height:0;z-index:7;display:none}
+.pedale .lenk{position:fixed;left:12px;bottom:16px;display:flex;gap:8px}
+.pedale .fuss{position:fixed;right:12px;bottom:16px;display:flex;gap:8px;align-items:flex-end}
+.pedale .lenk button{width:76px;height:76px;font-size:1.6rem}
+.pedale .gas{width:84px;height:110px;background:#e8f3ea;font-size:1rem}.pedale .bremse{width:84px;height:76px;background:#fbe8e3;font-size:1rem}
+@media (pointer:coarse){body.faehrt .pedale{display:block}body.faehrt .bed,body.faehrt #hud .kamera{display:none}}
+body.faehrt #hTut{display:none}
+.ehinweis{position:fixed;z-index:6;transform:translate(-50%,-100%);background:rgba(36,50,58,.9);color:#fff;font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:999px;pointer-events:none;white-space:nowrap}
+.ehinweis[hidden]{display:none}
+.fahrhud{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;width:min(720px,96vw)}
+.fahrhud[hidden]{display:none}
+.fahrhud > *{pointer-events:auto}
+.tacho{background:rgba(36,50,58,.9);color:#fff;border-radius:16px;padding:4px 14px;display:flex;align-items:baseline;gap:6px}
+.tacho b{font:700 1.6rem/1 var(--sans);min-width:2.4ch;text-align:right}.tacho small{opacity:.8}
+.fmitte{display:flex;flex-direction:column;align-items:center;gap:4px}
+.fradio{background:rgba(255,250,243,.92);border-radius:999px;padding:4px 14px;font-size:.8rem;max-width:96vw;text-align:center}
+.fradio[hidden]{display:none}
+.fort{background:var(--gold);color:#2a2105;border-radius:999px;padding:5px 14px;font-weight:700;font-size:.86rem}
+.fort[hidden]{display:none}
+.fknoepfe{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.fknoepfe .kn{padding:7px 11px;font-size:.8rem}
+.fknoepfe kbd{font:700 .7rem var(--sans);background:#eef3f1;border-radius:5px;padding:1px 5px;margin-left:3px}
+.fknoepfe [hidden]{display:none}
+.blitz{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:30;transition:opacity .2s}
+.blitz.an{opacity:.85;transition:none}
+.auftragtafel{position:fixed;left:50%;transform:translateX(-50%);top:158px;z-index:6;width:min(520px,94vw);background:rgba(255,250,243,.97);border-radius:16px;padding:10px 14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.6);font-size:.88rem}
+.auftragtafel[hidden]{display:none}
+body:not(.faehrt) .auftragtafel{top:120px}
+.tkopf{margin:0 0 4px;font-weight:700;color:var(--petrol)}.tkopf.ok{color:#2f7a45}.tkopf.nein{color:#a23a24}
+.tfrage{margin:0 0 6px;font-weight:600}
+.topts{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.topts li{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:center}
+.topts b{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:.78rem}
+.terkl{margin:4px 0}
+.tklein{margin:6px 0 0;color:var(--grau);font-size:.78rem;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tabbr{border:1px solid var(--linie);background:#fff;border-radius:999px;padding:3px 10px;font-size:.74rem;cursor:pointer}
+.tastatur{width:100%;border-collapse:collapse;font-size:.9rem}
+.tastatur th{text-align:left;padding:6px 10px 6px 0;white-space:nowrap;color:var(--petrol)}
+.tastatur td{padding:6px 0;border-bottom:1px solid var(--linie)}
+.grosskarte{width:100%;height:auto;border-radius:14px;display:block;margin:4px 0 8px}
+.schnell{display:flex;flex-wrap:wrap;gap:6px}
+.autobild{display:block;height:44px;border-radius:12px;background:linear-gradient(#eef3f1,#eef3f1) padding-box;position:relative;margin-bottom:4px}
+.autobild::before{content:"";position:absolute;left:18%;right:18%;bottom:12px;height:16px;border-radius:8px 8px 4px 4px;background:var(--f)}
+.autobild::after{content:"";position:absolute;left:30%;right:34%;bottom:24px;height:12px;border-radius:8px 8px 0 0;background:var(--f);filter:brightness(.85)}
+.autobild.rad::after{left:46%;right:46%;height:16px;border-radius:2px}
+.farbe.klein{width:24px;height:24px;border-width:2px}
+.uebersicht{padding-left:18px;margin:8px 0 0;display:grid;gap:8px;font-size:.88rem}
+.uebersicht li.ok::marker{color:var(--gruen)}.uebersicht li.nein::marker{color:var(--rot)}
+#hud .werte{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px}
+#hud .werte span{white-space:nowrap}
+body.faehrt #hud .kamera{display:none}
+body.faehrt .minikarte{top:74px;bottom:auto}
+body.faehrt .toasts{top:auto;bottom:130px}
+body.faehrt .auftragtafel{top:214px}
+@media (max-width:760px){
+  #btnKarte,#btnHilfe{display:none}
+  .minikarte{top:158px;right:6px}
+  .minikarte canvas{width:130px;height:130px}
+  .minikarte{width:136px}
+  .fahrhud{top:158px;width:calc(100vw - 150px);left:6px;transform:none;align-items:flex-start}
+  .fknoepfe{justify-content:flex-start}
+  body.faehrt .minikarte{bottom:auto;top:158px}
+  body.faehrt .toasts{bottom:140px;top:auto}
+  .auftragtafel,body:not(.faehrt) .auftragtafel{top:158px;font-size:.8rem;width:calc(100vw - 154px);left:6px;transform:none;padding:8px 10px}
+  body.faehrt .auftragtafel{top:330px;width:94vw}
+  #btnKarte{padding:8px 11px}
+  .steuerkreuz{bottom:132px;left:8px}
+}
